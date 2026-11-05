@@ -1,1148 +1,473 @@
-```html
 <!DOCTYPE html>
 <html lang="ml">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ഞങ്ങളുടെ കുടുംബവൃക്ഷം | Family Heritage Tree</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Manjari & Noto Sans Malayalam + Cinzel for Royal English headings -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Manjari:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>കുടുംബ വൃക്ഷം | Family Tree</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&family=Noto+Sans+Malayalam:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Inter','Noto Sans Malayalam',sans-serif;
+  background:#0a0a14;
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(212,175,55,.10), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(150,80,200,.08), transparent 40%),
+    linear-gradient(180deg,#0a0a14,#050510);
+  background-attachment:fixed;
+  color:#f0f0f5;min-height:100vh;padding-bottom:40px;line-height:1.5;
+}
+.site-header{text-align:center;padding:48px 20px 24px}
+.site-header::after{content:'';display:block;width:80px;height:2px;background:linear-gradient(90deg,transparent,#d4af37,transparent);margin:20px auto 0}
+.site-header h1{font-family:'Playfair Display','Noto Sans Malayalam',serif;font-size:clamp(30px,6vw,52px);font-weight:700;letter-spacing:1px;background:linear-gradient(135deg,#d4af37,#f5e6a8,#d4af37);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.site-header .subtitle{color:#888;font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-top:8px}
 
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            heritage: {
-              gold: '#D4AF37',
-              goldLight: '#F3E5AB',
-              goldDark: '#AA7C11',
-              emerald: '#0B3B24',
-              emeraldDeep: '#062316',
-              surface: '#0F1E17',
-              card: '#162C22',
-              cardBorder: '#234737',
-              accent: '#E6C687'
-            }
-          },
-          fontFamily: {
-            malayalam: ['Manjari', 'sans-serif'],
-            serifRoyal: ['Cinzel', 'serif'],
-            sans: ['"Plus Jakarta Sans"', 'Manjari', 'sans-serif']
-          }
-        }
-      }
-    }
-  </script>
+.breadcrumb{max-width:1200px;margin:0 auto 24px;padding:0 24px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px}
+.crumb{color:#999;text-decoration:none;padding:5px 12px;border-radius:20px;transition:all .2s;background:rgba(255,255,255,.03);border:1px solid transparent;font-size:13px}
+.crumb:hover{color:#d4af37;border-color:rgba(212,175,55,.3);background:rgba(212,175,55,.05)}
+.crumb.current{color:#d4af37;background:rgba(212,175,55,.1);border-color:rgba(212,175,55,.3)}
+.sep{color:#555}
+.gen-badge{padding:5px 12px;border-radius:20px;background:linear-gradient(135deg,rgba(212,175,55,.2),rgba(212,175,55,.08));border:1px solid rgba(212,175,55,.4);color:#d4af37;font-size:11px;font-weight:600;letter-spacing:1px}
 
-  <style>
-    body {
-      font-family: 'Plus Jakarta Sans', 'Manjari', sans-serif;
-      background-color: #06150F;
-      color: #E2E8F0;
-      background-image: 
-        radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.12) 0%, transparent 60%),
-        radial-gradient(circle at 10% 30%, rgba(11, 59, 36, 0.35) 0%, transparent 40%),
-        radial-gradient(circle at 90% 70%, rgba(11, 59, 36, 0.35) 0%, transparent 40%);
-      background-attachment: fixed;
-    }
+main{max-width:1200px;margin:0 auto;padding:0 24px}
+.person-section{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:48px}
+@media(max-width:768px){.person-section{grid-template-columns:1fr}}
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #06150F;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #234737;
-      border-radius: 4px;
-      border: 1px solid rgba(212, 175, 55, 0.2);
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #D4AF37;
-    }
+.person-card{
+  position:relative;
+  background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  border:1px solid rgba(212,175,55,.25);border-radius:20px;
+  padding:32px 24px;text-align:center;backdrop-filter:blur(10px);
+  transition:all .3s;overflow:hidden;
+}
+.person-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,.6),transparent)}
+.person-card:hover{transform:translateY(-2px);border-color:rgba(212,175,55,.5);box-shadow:0 20px 40px -20px rgba(212,175,55,.3)}
+.person-card h2{font-family:'Playfair Display','Noto Sans Malayalam',serif;font-size:26px;margin-bottom:6px;color:#fff}
+.person-card .relation{color:#d4af37;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;font-weight:600}
 
-    /* Tree Branch Connectors */
-    .tree-connector-v {
-      width: 2px;
-      background: linear-gradient(to bottom, #D4AF37, rgba(212, 175, 55, 0.2));
-    }
-    .tree-connector-h {
-      height: 2px;
-      background: linear-gradient(to right, rgba(212, 175, 55, 0.2), #D4AF37, rgba(212, 175, 55, 0.2));
-    }
+.avatar-wrap{position:relative;display:inline-block;margin-bottom:16px}
+.avatar-wrap img{display:block;border-radius:50%;object-fit:cover;width:140px;height:140px;border:3px solid rgba(212,175,55,.4);box-shadow:0 0 0 6px rgba(212,175,55,.08),0 10px 30px rgba(0,0,0,.4);background:#12121f}
 
-    /* Glass effect */
-    .glass-card {
-      background: rgba(22, 44, 34, 0.7);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(212, 175, 55, 0.22);
-    }
-    .glass-card:hover {
-      border-color: rgba(212, 175, 55, 0.5);
-    }
+.contact-list{display:flex;flex-direction:column;gap:8px;margin:20px auto 0;max-width:340px;text-align:left}
+.contact-item{display:flex;align-items:center;gap:10px;font-size:13px;color:#b0b0b8;padding:8px 12px;background:rgba(255,255,255,.02);border-radius:8px;border:1px solid rgba(255,255,255,.04);word-break:break-word}
+.contact-item svg{color:#d4af37;flex-shrink:0}
+.contact-item.empty{color:#555;font-style:italic;justify-content:center}
 
-    .glass-card-active {
-      background: rgba(30, 60, 46, 0.9);
-      border-color: #D4AF37;
-      box-shadow: 0 0 25px rgba(212, 175, 55, 0.25);
-    }
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:30px;background:transparent;border:1px solid rgba(212,175,55,.4);color:#d4af37;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;letter-spacing:.5px}
+.btn:hover{background:rgba(212,175,55,.1);border-color:#d4af37;box-shadow:0 0 20px rgba(212,175,55,.2)}
+.btn-primary{background:linear-gradient(135deg,#d4af37,#b8942c);color:#0a0a14;border:none;font-weight:600}
+.btn-primary:hover{background:linear-gradient(135deg,#f5d76e,#d4af37);box-shadow:0 10px 30px -10px rgba(212,175,55,.6)}
+.btn-edit{position:absolute;top:16px;right:16px;padding:6px 14px;font-size:12px}
 
-    /* Gold text shine */
-    .gold-gradient-text {
-      background: linear-gradient(135deg, #FFF1BD 0%, #D4AF37 50%, #AA7C11 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-  </style>
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(212,175,55,.15);flex-wrap:wrap;gap:12px}
+.section-header h2{font-family:'Playfair Display','Noto Sans Malayalam',serif;font-size:24px;color:#fff;display:flex;align-items:center;gap:12px}
+.count{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 10px;border-radius:16px;background:rgba(212,175,55,.15);color:#d4af37;font-size:14px;font-weight:600;border:1px solid rgba(212,175,55,.3)}
+
+.children-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+
+.child-card{position:relative;background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px 16px;text-align:center;cursor:pointer;transition:all .3s;overflow:hidden}
+.child-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(212,175,55,.1),transparent 70%);opacity:0;transition:opacity .3s;pointer-events:none}
+.child-card:hover{transform:translateY(-4px);border-color:rgba(212,175,55,.4);box-shadow:0 20px 40px -20px rgba(212,175,55,.4)}
+.child-card:hover::before{opacity:1}
+.child-card .avatar-wrap img{width:90px;height:90px;border:2px solid rgba(212,175,55,.3);box-shadow:0 0 0 4px rgba(212,175,55,.06);margin-bottom:8px}
+.child-card h3{font-family:'Playfair Display','Noto Sans Malayalam',serif;font-size:17px;margin:10px 0 4px;color:#fff}
+.child-card .relation{color:#d4af37;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
+.child-card .mini-info{margin-top:10px;font-size:12px;color:#888;display:flex;align-items:center;justify-content:center;gap:6px}
+.child-card .family-count{margin-top:12px;font-size:11px;color:#d4af37;letter-spacing:.5px;padding:4px 12px;border-radius:20px;background:rgba(212,175,55,.08);display:inline-block;border:1px solid rgba(212,175,55,.2)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:1000;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:linear-gradient(145deg,#141422,#0a0a14);border:1px solid rgba(212,175,55,.3);border-radius:20px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;padding:32px;animation:slideUp .3s}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal h3{font-family:'Playfair Display','Noto Sans Malayalam',serif;font-size:22px;color:#d4af37;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(212,175,55,.15)}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:11px;color:#999;margin-bottom:6px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
+.form-group input,.form-group textarea{width:100%;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:inherit;font-size:14px;transition:border-color .2s}
+.form-group input:focus,.form-group textarea:focus{outline:none;border-color:rgba(212,175,55,.5);background:rgba(255,255,255,.05)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}}
+.photo-upload{display:flex;align-items:center;gap:16px;margin-bottom:24px;padding:16px;background:rgba(255,255,255,.02);border-radius:12px;border:1px solid rgba(255,255,255,.06)}
+.photo-upload img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid rgba(212,175,55,.4);background:#12121f}
+.modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);flex-wrap:wrap}
+
+.empty-state{text-align:center;padding:40px 20px;color:#666;font-style:italic;background:rgba(255,255,255,.02);border-radius:16px;border:1px dashed rgba(255,255,255,.1)}
+.site-footer{max-width:1200px;margin:60px auto 0;padding:24px;text-align:center;border-top:1px solid rgba(212,175,55,.1);display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+</style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-heritage-gold selection:text-heritage-emeraldDeep">
+<body>
+<div id="app"></div>
+<div id="modal-root"></div>
+<input type="file" id="importInput" accept=".json" style="display:none">
+<script>
+/* ============ ICONS ============ */
+const ICONS = {
+  phone: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.36 11.36 0 003.58.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.58 1 1 0 01-.25 1.01l-2.2 2.2z"/></svg>',
+  email: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>',
+  location: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1112 6.5a2.5 2.5 0 010 5z"/></svg>',
+  facebook: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 10-11.56 9.87v-6.98H7.9V12h2.54V9.8c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.45 2.89h-2.33v6.98A10 10 0 0022 12z"/></svg>',
+  instagram: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.22.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.05.41 2.22.06 1.27.07 1.65.07 4.86s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.22-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.05.36-2.22.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.22-.41a3.7 3.7 0 01-1.38-.9 3.7 3.7 0 01-.9-1.38c-.16-.42-.36-1.05-.41-2.22-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.22.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.05-.36 2.22-.41 1.27-.06 1.65-.07 4.85-.07M12 0C8.74 0 8.33.01 7.05.07c-1.28.06-2.15.26-2.91.56-.79.3-1.46.72-2.13 1.38A5.87 5.87 0 00.63 4.14c-.3.76-.5 1.63-.56 2.91C.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.28.26 2.15.56 2.91.3.79.72 1.46 1.38 2.13a5.87 5.87 0 002.13 1.38c.76.3 1.63.5 2.91.56 1.28.06 1.69.07 4.95.07s3.67-.01 4.95-.07c1.28-.06 2.15-.26 2.91-.56a5.87 5.87 0 002.13-1.38 5.87 5.87 0 001.38-2.13c.3-.76.5-1.63.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.28-.26-2.15-.56-2.91a5.87 5.87 0 00-1.38-2.13A5.87 5.87 0 0019.86.63c-.76-.3-1.63-.5-2.91-.56C15.67.01 15.26 0 12 0zm0 5.84a6.16 6.16 0 100 12.32 6.16 6.16 0 000-12.32zM12 16a4 4 0 110-8 4 4 0 010 8zm6.4-10.85a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/></svg>',
+  whatsapp: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.06 2.87 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.22 1.36.19 1.87.12.57-.09 1.75-.72 2-1.41.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35zM12.05 21.79h-.01a9.82 9.82 0 01-5-1.37l-.36-.21-3.72.98.99-3.63-.23-.37a9.82 9.82 0 01-1.5-5.24c0-5.42 4.42-9.84 9.85-9.84a9.8 9.8 0 016.96 2.88 9.78 9.78 0 012.88 6.97c0 5.43-4.42 9.85-9.85 9.85zM20.52 3.5A11.82 11.82 0 0012.05.01C5.5.01.17 5.34.17 11.89c0 2.1.55 4.14 1.59 5.94L.06 24l6.31-1.66a11.85 11.85 0 005.68 1.45h.01c6.54 0 11.87-5.33 11.88-11.88a11.8 11.8 0 00-3.42-8.42z"/></svg>',
+  spouse: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'
+};
 
-  <!-- TOP APP BAR / HEADER -->
-  <header class="sticky top-0 z-40 glass-card border-b border-heritage-gold/20 shadow-xl bg-opacity-90">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center space-x-3">
-        <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-heritage-goldDark to-heritage-gold flex items-center justify-center text-heritage-emeraldDeep shadow-lg">
-          <i class="fa-solid fa-tree text-xl"></i>
+/* ============ DEFAULT DATA (sample 8 children) ============ */
+const defaultData = {
+  id: 'root',
+  name: 'മുഹമ്മദ് ഹാജി',
+  relation: 'മുത്തച്ഛൻ (Grandfather)',
+  gender: 'male',
+  photo: null,
+  phone: '+91 98470 00001',
+  email: 'muhammad.haji@example.com',
+  social: { facebook: 'facebook.com/muhammadhaji', instagram: '@mhaji', whatsapp: '9847000001' },
+  address: 'ഹാജി മൻസിൽ, കോഴിക്കോട്, കേരളം',
+  spouse: {
+    name: 'ഫാത്തിമ ബീവി',
+    relation: 'മുത്തശ്ശി (Grandmother)',
+    gender: 'female',
+    photo: null,
+    phone: '+91 98470 00002',
+    email: 'fathima.beevi@example.com',
+    social: { facebook: '', instagram: '', whatsapp: '' },
+    address: 'ഹാജി മൻസിൽ, കോഴിക്കോട്, കേരളം'
+  },
+  children: [
+    { id: 'c1', name: 'അഹമ്മദ് ഹാജി', relation: 'മകൻ', gender: 'male', photo: null,
+      phone: '+91 98470 11111', email: 'ahmed@example.com',
+      social: { facebook: 'fb.com/ahmed', instagram: '@ahmed', whatsapp: '9847011111' },
+      address: 'ദുബായ്, UAE',
+      spouse: { name: 'സൽമ', relation: 'ഭാര്യ', photo: null, phone: '', email: '', social: {}, address: 'ദുബായ്' },
+      children: [
+        { id: 'c1-1', name: 'റഷീദ് അഹമ്മദ്', relation: 'മകൻ', gender: 'male', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] },
+        { id: 'c1-2', name: 'ഫർസാന അഹമ്മദ്', relation: 'മകൾ', gender: 'female', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] }
+      ]},
+    { id: 'c2', name: 'ഫാത്തിമ സുഹറ', relation: 'മകൾ', gender: 'female', photo: null,
+      phone: '+91 98470 22222', email: 'suhara@example.com',
+      social: { facebook: '', instagram: '@suhara', whatsapp: '9847022222' },
+      address: 'തൃശ്ശൂർ, കേരളം',
+      spouse: { name: 'യൂസഫ്', relation: 'ഭർത്താവ്', photo: null, phone: '', email: '', social: {}, address: 'തൃശ്ശൂർ' },
+      children: [
+        { id: 'c2-1', name: 'ഹാരിസ് യൂസഫ്', relation: 'മകൻ', gender: 'male', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] }
+      ]},
+    { id: 'c3', name: 'ആയിഷ ബീവി', relation: 'മകൾ', gender: 'female', photo: null,
+      phone: '', email: '', social: {}, address: 'കോഴിക്കോട്',
+      spouse: null, children: [] },
+    { id: 'c4', name: 'ഉമർ ഹാജി', relation: 'മകൻ', gender: 'male', photo: null,
+      phone: '+91 98470 44444', email: 'umar@example.com',
+      social: { facebook: '', instagram: '', whatsapp: '9847044444' },
+      address: 'മസ്കറ്റ്, ഒമാൻ',
+      spouse: { name: 'ആമിന', relation: 'ഭാര്യ', photo: null, phone: '', email: '', social: {}, address: 'മസ്കറ്റ്' },
+      children: [
+        { id: 'c4-1', name: 'സൽമാൻ ഉമർ', relation: 'മകൻ', gender: 'male', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] },
+        { id: 'c4-2', name: 'റിഫ ഉമർ', relation: 'മകൾ', gender: 'female', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] },
+        { id: 'c4-3', name: 'സിഹാന ഉമർ', relation: 'മകൾ', gender: 'female', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] }
+      ]},
+    { id: 'c5', name: 'സൈനബ', relation: 'മകൾ', gender: 'female', photo: null,
+      phone: '', email: '', social: {}, address: 'മലപ്പുറം',
+      spouse: null, children: [] },
+    { id: 'c6', name: 'അലി ഹാജി', relation: 'മകൻ', gender: 'male', photo: null,
+      phone: '+91 98470 66666', email: 'ali@example.com',
+      social: { facebook: '', instagram: '', whatsapp: '' },
+      address: 'ബെംഗളൂരു',
+      spouse: null, children: [] },
+    { id: 'c7', name: 'ഖദീജ', relation: 'മകൾ', gender: 'female', photo: null,
+      phone: '', email: '', social: {}, address: 'കണ്ണൂർ',
+      spouse: null, children: [] },
+    { id: 'c8', name: 'ഇബ്രാഹിം ഹാജി', relation: 'മകൻ', gender: 'male', photo: null,
+      phone: '+91 98470 88888', email: 'ibrahim@example.com',
+      social: { facebook: 'fb.com/ibrahim', instagram: '@ibrahim', whatsapp: '9847088888' },
+      address: 'ഷാർജ, UAE',
+      spouse: { name: 'റംല', relation: 'ഭാര്യ', photo: null, phone: '', email: '', social: {}, address: 'ഷാർജ' },
+      children: [
+        { id: 'c8-1', name: 'അഫ്നാൻ ഇബ്രാഹിം', relation: 'മകൻ', gender: 'male', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] }
+      ]}
+  ]
+};
+
+/* ============ STATE & STORAGE ============ */
+const STORAGE_KEY = 'familyTree_v1';
+let state = { data: loadData(), path: ['root'] };
+let editingContext = null;
+let pendingPhoto = undefined;
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(defaultData));
+}
+function saveData() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data)); }
+  catch(e) { alert('സേവ് ചെയ്യാൻ പറ്റിയില്ല. ഫോട്ടോ വലുതായിരിക്കാം.'); }
+}
+
+/* ============ HELPERS ============ */
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function getInitials(name) {
+  const parts = (name || '?').trim().split(/\s+/);
+  return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+}
+function avatarHTML(person) {
+  const size = 140;
+  if (person.photo) return `<img src="${person.photo}" alt="${escapeHtml(person.name)}">`;
+  const initials = getInitials(person.name);
+  const female = person.gender === 'female' || /മകൾ|അമ്മ|ഭാര്യ|സ്ത്രീ/i.test(person.relation||'');
+  const color = female ? '#4a2340' : '#1a2540';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${color}"/><stop offset="1" stop-color="#0a0a14"/></linearGradient></defs><rect width="100" height="100" fill="url(#g)"/><text x="50" y="63" font-family="Georgia,serif" font-size="34" fill="#d4af37" text-anchor="middle">${initials}</text></svg>`;
+  return `<img src="data:image/svg+xml,${encodeURIComponent(svg)}" alt="${escapeHtml(person.name)}">`;
+}
+function genId() { return 'n_' + Date.now() + '_' + Math.random().toString(36).slice(2,7); }
+function findNode(path) {
+  let node = state.data;
+  for (let i = 1; i < path.length; i++) {
+    if (!node.children) return node;
+    const c = node.children.find(x => x.id === path[i]);
+    if (!c) return node;
+    node = c;
+  }
+  return node;
+}
+
+/* ============ NAVIGATION ============ */
+function navigateTo(index) {
+  state.path = state.path.slice(0, index + 1);
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function navigateToChild(childId) {
+  state.path.push(childId);
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ============ RENDER ============ */
+function renderBreadcrumb() {
+  const paths = state.path.map((id, i) => {
+    let node = state.data;
+    for (let j = 1; j <= i; j++) node = node.children?.find(c => c.id === state.path[j]) || node;
+    return { name: node.name, index: i };
+  });
+  const crumbs = paths.map((p, i) => {
+    const label = i === 0 ? '🏠 ഹോം' : escapeHtml(p.name);
+    if (i === paths.length - 1) return `<span class="crumb current">${label}</span>`;
+    return `<a href="#" class="crumb" onclick="navigateTo(${i});return false;">${label}</a>`;
+  });
+  return `<span class="gen-badge">GEN ${state.path.length}</span><span class="sep">|</span>` + crumbs.join('<span class="sep">›</span>');
+}
+
+function renderContacts(p) {
+  const items = [];
+  if (p.phone) items.push(`<div class="contact-item">${ICONS.phone}<span>${escapeHtml(p.phone)}</span></div>`);
+  if (p.email) items.push(`<div class="contact-item">${ICONS.email}<span>${escapeHtml(p.email)}</span></div>`);
+  if (p.social?.facebook) items.push(`<div class="contact-item">${ICONS.facebook}<span>${escapeHtml(p.social.facebook)}</span></div>`);
+  if (p.social?.instagram) items.push(`<div class="contact-item">${ICONS.instagram}<span>${escapeHtml(p.social.instagram)}</span></div>`);
+  if (p.social?.whatsapp) items.push(`<div class="contact-item">${ICONS.whatsapp}<span>${escapeHtml(p.social.whatsapp)}</span></div>`);
+  if (p.address) items.push(`<div class="contact-item">${ICONS.location}<span>${escapeHtml(p.address)}</span></div>`);
+  if (!items.length) return '<div class="contact-list"><div class="contact-item empty">വിവരങ്ങൾ ലഭ്യമല്ല</div></div>';
+  return `<div class="contact-list">${items.join('')}</div>`;
+}
+
+function renderPersonCard(person, editTarget) {
+  return `
+    <div class="person-card">
+      <button class="btn btn-edit" onclick="openEditModal('${editTarget}')">✎ Edit</button>
+      <div class="avatar-wrap">${avatarHTML(person)}</div>
+      <h2>${escapeHtml(person.name)}</h2>
+      <div class="relation">${escapeHtml(person.relation || '')}</div>
+      ${renderContacts(person)}
+    </div>`;
+}
+
+function renderChildCard(child) {
+  const cnt = child.children?.length || 0;
+  return `
+    <div class="child-card" onclick="navigateToChild('${child.id}')">
+      <div class="avatar-wrap">${avatarHTML(child)}</div>
+      <h3>${escapeHtml(child.name)}</h3>
+      <div class="relation">${escapeHtml(child.relation || '')}</div>
+      ${child.spouse ? `<div class="mini-info">${ICONS.spouse} ${escapeHtml(child.spouse.name)}</div>` : ''}
+      ${cnt ? `<div class="family-count">${cnt} മക്കൾ</div>` : `<div class="family-count" style="opacity:.5">മക്കളില്ല</div>`}
+    </div>`;
+}
+
+function render() {
+  const current = findNode(state.path);
+  const spouse = current.spouse;
+  const spouseDisplay = spouse ? { ...spouse, relation: spouse.relation || (current.gender === 'female' ? 'ഭർത്താവ്' : 'ഭാര്യ') } : null;
+  const app = document.getElementById('app');
+
+  app.innerHTML = `
+    <header class="site-header">
+      <h1>കുടുംബ വൃക്ഷം</h1>
+      <div class="subtitle">Family Heritage Tree</div>
+    </header>
+    <nav class="breadcrumb">${renderBreadcrumb()}</nav>
+    <main>
+      <section class="person-section">
+        ${renderPersonCard(current, 'person')}
+        ${spouseDisplay ? renderPersonCard(spouseDisplay, 'spouse') :
+          `<div class="person-card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px">
+            <div style="color:#888">ഇണയെ ചേർത്തിട്ടില്ല</div>
+            <button class="btn btn-primary" onclick="openEditModal('spouse')">+ ഇണയെ ചേർക്കുക</button>
+           </div>`}
+      </section>
+      <section class="children-section">
+        <div class="section-header">
+          <h2>മക്കൾ <span class="count">${current.children?.length || 0}</span></h2>
+          <button class="btn btn-primary" onclick="openEditModal('child-new')">+ പുതിയത് ചേർക്കുക</button>
         </div>
-        <div>
-          <h1 class="text-xl sm:text-2xl font-bold tracking-tight gold-gradient-text font-serifRoyal">
-            ഞങ്ങളുടെ കുടുംബവൃക്ഷം
-          </h1>
-          <p class="text-xs text-heritage-goldLight/70 font-malayalam tracking-wider">
-            വേരുകൾ • തലമുറകൾ • ഓർമ്മകൾ
-          </p>
-        </div>
-      </div>
+        ${current.children?.length
+          ? `<div class="children-grid">${current.children.map(renderChildCard).join('')}</div>`
+          : `<div class="empty-state">മക്കളെ ഇതുവരെ ചേർത്തിട്ടില്ല. മുകളിലുള്ള ബട്ടൺ ഉപയോഗിക്കുക.</div>`}
+      </section>
+    </main>
+    <footer class="site-footer">
+      <button class="btn" onclick="exportData()">⬇ Export JSON</button>
+      <button class="btn" onclick="document.getElementById('importInput').click()">⬆ Import JSON</button>
+      <button class="btn" onclick="resetData()">↺ Reset</button>
+    </footer>`;
+}
 
-      <!-- Quick Search Bar -->
-      <div class="relative flex-1 max-w-md min-w-[240px]">
-        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-heritage-gold/60 text-sm"></i>
-        <input 
-          type="text" 
-          id="memberSearchInput" 
-          placeholder="കുടുംബാംഗത്തെ പേര് വഴി തിരയുക..." 
-          class="w-full pl-10 pr-4 py-2 bg-heritage-surface/80 text-sm text-heritage-goldLight placeholder-heritage-goldLight/40 rounded-full border border-heritage-gold/30 focus:outline-none focus:border-heritage-gold focus:ring-1 focus:ring-heritage-gold transition shadow-inner font-malayalam"
-        >
-        <!-- Search suggestions dropdown -->
-        <div id="searchDropdown" class="hidden absolute left-0 right-0 top-full mt-2 glass-card rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 p-2 divide-y divide-heritage-cardBorder/50"></div>
-      </div>
+/* ============ MODALS ============ */
+function openEditModal(target) {
+  const current = findNode(state.path);
+  let person, title, mode = target;
+  if (target === 'person') {
+    person = current; title = 'വ്യക്തി വിവരങ്ങൾ';
+  } else if (target === 'spouse') {
+    person = current.spouse || { name: '', relation: current.gender === 'female' ? 'ഭർത്താവ്' : 'ഭാര്യ', photo: null, phone: '', email: '', social: {}, address: '' };
+    title = 'ഇണയുടെ വിവരങ്ങൾ';
+  } else if (target === 'child-new') {
+    person = { name: '', relation: 'മകൻ', photo: null, phone: '', email: '', social: {}, address: '' };
+    title = 'പുതിയ കുടുംബാംഗം';
+  }
+  editingContext = { target, mode };
+  pendingPhoto = undefined;
+  renderModal(person, title);
+}
 
-      <!-- Quick Action Buttons -->
-      <div class="flex items-center space-x-2">
-        <button onclick="scrollToSection('rootsSection')" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-heritage-emerald text-heritage-goldLight border border-heritage-gold/30 hover:bg-heritage-gold hover:text-heritage-emeraldDeep transition flex items-center gap-1.5">
-          <i class="fa-solid fa-crown text-[10px]"></i> മുത്തശ്ശൻ & മുത്തശ്ശി
-        </button>
-        <button onclick="scrollToSection('branchesSection')" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-heritage-emerald text-heritage-goldLight border border-heritage-gold/30 hover:bg-heritage-gold hover:text-heritage-emeraldDeep transition flex items-center gap-1.5">
-          <i class="fa-solid fa-sitemap text-[10px]"></i> 8 ശാഖകൾ
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- MAIN CONTAINER -->
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
-
-    <!-- GENERATION 1: THE ROOTS (GRANDFATHER & GRANDMOTHER) -->
-    <section id="rootsSection" class="relative text-center pt-4">
-      <!-- Section Tag -->
-      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-heritage-gold/40 bg-heritage-emerald/40 text-heritage-gold text-xs font-semibold uppercase tracking-widest mb-6">
-        <i class="fa-solid fa-seedling"></i> ഒന്നാം തലമുറ • നമ്മുടെ വേരുകൾ
-      </div>
-
-      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold gold-gradient-text font-serifRoyal mb-3">
-        കുടുംബ കാരണവന്മാർ
-      </h2>
-      <p class="max-w-2xl mx-auto text-sm sm:text-base text-gray-300 font-malayalam leading-relaxed mb-10">
-        നമ്മുടെ വംശപരമ്പരയ്ക്ക് അടിത്തറ പാകിയ സ്നേഹനിധികളായ മുത്തശ്ശനും മുത്തശ്ശിയും. അവരുടെ കാരുണ്യവും അനുഗ്രഹവും ഇന്നും നമ്മെ നയിക്കുന്നു.
-      </p>
-
-      <!-- Couple Card Presentation -->
-      <div class="max-w-3xl mx-auto glass-card rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-2xl border-2 border-heritage-gold/30">
-        <!-- Decorative golden corner ornaments -->
-        <div class="absolute top-2 left-2 text-heritage-gold/20 text-4xl pointer-events-none">❖</div>
-        <div class="absolute top-2 right-2 text-heritage-gold/20 text-4xl pointer-events-none">❖</div>
-        <div class="absolute bottom-2 left-2 text-heritage-gold/20 text-4xl pointer-events-none">❖</div>
-        <div class="absolute bottom-2 right-2 text-heritage-gold/20 text-4xl pointer-events-none">❖</div>
-
-        <div class="flex flex-col md:flex-row items-center justify-around gap-8 relative z-10">
-          
-          <!-- Grandfather -->
-          <div class="flex flex-col items-center text-center group cursor-pointer" onclick="openProfileModal(familyData.grandparents.grandfather)">
-            <div class="relative mb-4">
-              <div class="w-36 h-36 sm:w-44 sm:h-44 rounded-full p-1.5 bg-gradient-to-b from-heritage-gold via-heritage-goldDark to-transparent shadow-xl">
-                <img 
-                  id="grandfatherImg"
-                  src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80" 
-                  alt="Grandfather" 
-                  class="w-full h-full object-cover rounded-full filter contrast-105 group-hover:scale-105 transition duration-500 border-2 border-heritage-surface"
-                  onerror="this.src='https://placehold.co/400x400/0B3B24/D4AF37?text=മുത്തശ്ശൻ'"
-                />
-              </div>
-              <span class="absolute -bottom-2 bg-heritage-gold text-heritage-emeraldDeep text-[11px] font-bold px-3 py-0.5 rounded-full uppercase shadow">
-                മുത്തശ്ശൻ
-              </span>
-            </div>
-            <h3 id="grandfatherName" class="text-xl sm:text-2xl font-bold text-white group-hover:text-heritage-gold transition">
-              വല്യപ്പൻ (പേര് നൽകുക)
-            </h3>
-            <p id="grandfatherDates" class="text-xs text-heritage-goldLight/80 font-malayalam mt-1">
-              (1925 - 2005)
-            </p>
-            <p class="text-xs text-gray-400 mt-2 max-w-[200px] line-clamp-2">
-              കുടുംബത്തിന്റെ വഴികാട്ടിയും പ്രചോദനവുമായിരുന്ന മഹത് വ്യക്തിത്വം.
-            </p>
-          </div>
-
-          <!-- Marriage Symbol / Heart Knot -->
-          <div class="flex flex-col items-center justify-center py-2">
-            <div class="w-14 h-14 rounded-full bg-heritage-emerald border border-heritage-gold/50 flex items-center justify-center text-heritage-gold shadow-lg transform rotate-45">
-              <i class="fa-solid fa-ring text-xl -rotate-45"></i>
-            </div>
-            <span class="text-[11px] font-serifRoyal text-heritage-gold mt-2 font-semibold tracking-wider">
-              ESTD. 1948
-            </span>
-            <span class="text-[10px] text-gray-400 font-malayalam">
-              8 മക്കൾ • ശാഖകൾ
-            </span>
-          </div>
-
-          <!-- Grandmother -->
-          <div class="flex flex-col items-center text-center group cursor-pointer" onclick="openProfileModal(familyData.grandparents.grandmother)">
-            <div class="relative mb-4">
-              <div class="w-36 h-36 sm:w-44 sm:h-44 rounded-full p-1.5 bg-gradient-to-b from-heritage-gold via-heritage-goldDark to-transparent shadow-xl">
-                <img 
-                  id="grandmotherImg"
-                  src="https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&w=400&q=80" 
-                  alt="Grandmother" 
-                  class="w-full h-full object-cover rounded-full filter contrast-105 group-hover:scale-105 transition duration-500 border-2 border-heritage-surface"
-                  onerror="this.src='https://placehold.co/400x400/0B3B24/D4AF37?text=മുത്തശ്ശി'"
-                />
-              </div>
-              <span class="absolute -bottom-2 bg-heritage-gold text-heritage-emeraldDeep text-[11px] font-bold px-3 py-0.5 rounded-full uppercase shadow">
-                മുത്തശ്ശി
-              </span>
-            </div>
-            <h3 id="grandmotherName" class="text-xl sm:text-2xl font-bold text-white group-hover:text-heritage-gold transition">
-              വല്യമ്മ (പേര് നൽകുക)
-            </h3>
-            <p id="grandmotherDates" class="text-xs text-heritage-goldLight/80 font-malayalam mt-1">
-              (1930 - 2012)
-            </p>
-            <p class="text-xs text-gray-400 mt-2 max-w-[200px] line-clamp-2">
-              കരുണയുടെയും പ്രാർത്ഥനയുടെയും സ്നേഹത്തിന്റെയും അണയാത്ത ദീപം.
-            </p>
-          </div>
-
-        </div>
-
-        <div class="mt-8 pt-4 border-t border-heritage-cardBorder flex flex-wrap items-center justify-center gap-6 text-xs text-heritage-goldLight/70 font-malayalam">
-          <span><i class="fa-solid fa-location-dot text-heritage-gold mr-1"></i> തറവാട്: തൃശൂർ, കേരളം</span>
-          <span><i class="fa-solid fa-users text-heritage-gold mr-1"></i> ആകെ കുടുംബാംഗങ്ങൾ: 45+</span>
-        </div>
-      </div>
-
-      <!-- Connector line from Roots down to Generation 2 -->
-      <div class="flex justify-center my-6">
-        <div class="tree-connector-v h-12"></div>
-      </div>
-    </section>
-
-    <!-- GENERATION 2: THE 8 CHILDREN (BRANCHES) -->
-    <section id="branchesSection" class="relative">
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-heritage-gold/40 bg-heritage-emerald/40 text-heritage-gold text-xs font-semibold uppercase tracking-widest mb-3">
-          <i class="fa-solid fa-sitemap"></i> രണ്ടാം തലമുറ • 8 മക്കൾ
-        </div>
-        <h2 class="text-2xl sm:text-3xl font-extrabold gold-gradient-text font-serifRoyal">
-          കുടുംബ ശാഖകൾ (മക്കൾ)
-        </h2>
-        <p class="text-xs sm:text-sm text-gray-400 font-malayalam mt-1">
-          താഴെ നൽകിയിരിക്കുന്ന 8 മക്കളിൽ ആരുടെയെങ്കിലും കാർഡിൽ ക്ലിക്ക് ചെയ്താൽ അവരുടെ പങ്കാളി, മക്കൾ, പേരക്കുട്ടികൾ എന്നീ മുഴുവൻ വിവരങ്ങളും താഴെ തെളിയും.
-        </p>
-      </div>
-
-      <!-- 8 Children Grid -->
-      <div id="childrenGrid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
-        <!-- Rendered dynamically via JavaScript -->
-      </div>
-    </section>
-
-    <!-- GENERATION 3 & 4: SELECTED BRANCH DEEP-DIVE -->
-    <section id="selectedBranchSection" class="relative pt-6">
-      
-      <!-- Visual Connector Line from Selected Branch -->
-      <div class="flex justify-center mb-6">
-        <div class="tree-connector-v h-10"></div>
-      </div>
-
-      <!-- Main Container for Selected Branch Tree View -->
-      <div class="glass-card rounded-3xl p-6 sm:p-10 border-2 border-heritage-gold/30 shadow-2xl relative">
-        
-        <!-- Header Info of Selected Branch -->
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-heritage-cardBorder">
-          <div class="flex items-center space-x-4 text-center sm:text-left">
-            <div id="selectedBranchBadge" class="w-12 h-12 rounded-2xl bg-heritage-emerald border border-heritage-gold text-heritage-gold flex items-center justify-center font-bold text-lg shadow-lg">
-              1
-            </div>
-            <div>
-              <span class="text-xs text-heritage-gold font-bold uppercase tracking-wider font-malayalam">തിരഞ്ഞെടുത്ത കുടുംബശാഖ</span>
-              <h3 id="selectedBranchTitle" class="text-2xl font-bold text-white font-serifRoyal">
-                ശാഖാ വിവരങ്ങൾ
-              </h3>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-gray-400 font-malayalam">വിവരങ്ങൾക്കായി ഏതൊരു കാർഡിലും ക്ലിക്ക് ചെയ്യുക</span>
-          </div>
-        </div>
-
-        <!-- Dynamic Tree Content: Parents + Children + Grandchildren -->
-        <div id="branchTreeContainer" class="py-8">
-          <!-- Rendered dynamically -->
-        </div>
-
-      </div>
-    </section>
-
-    <!-- HOW TO CUSTOMIZE (Instruction accordion for user who hosts on GitHub) -->
-    <section class="glass-card rounded-2xl p-6 text-sm text-gray-300 border border-heritage-gold/20">
-      <div class="flex items-center justify-between cursor-pointer" onclick="toggleHelpBox()">
-        <div class="flex items-center space-x-3">
-          <i class="fa-solid fa-code text-heritage-gold text-lg"></i>
-          <span class="font-bold text-white font-malayalam">ഈ വെബ്‌സൈറ്റിലെ ഫോട്ടോകളും പേരുകളും എങ്ങനെ മാറ്റാം? (How to Edit)</span>
-        </div>
-        <i id="helpChevron" class="fa-solid fa-chevron-down text-heritage-gold transition-transform duration-300"></i>
-      </div>
-      <div id="helpContent" class="hidden mt-4 pt-4 border-t border-heritage-cardBorder font-malayalam text-xs sm:text-sm space-y-2 text-gray-400">
-        <p>1. ഈ ഫയൽ (`index.html`) ഏതെങ്കിലും ഒരു കോഡ് എഡിറ്ററിൽ (VS Code / Notepad) തുറക്കുക.</p>
-        <p>2. ഫയലിന്റെ താഴെയുള്ള <code class="text-heritage-gold">&lt;script&gt;</code> ടാഗിന് ഉള്ളിലെ <code class="text-heritage-gold">familyData</code> എന്ന ഒബ്ജക്റ്റിൽ മുത്തശ്ശന്റെയും മുത്തശ്ശിയുടെയും, 8 മക്കളുടെയും അവരുടെ കുടുംബാംഗങ്ങളുടെയും പേരുകളും ഫോട്ടോ ലിങ്കുകളും നിങ്ങൾക്ക് നൽകാം.</p>
-        <p>3. ഫോട്ടോകൾ നിങ്ങളുടെ കമ്പ്യൂട്ടറിലെ <code class="text-heritage-gold">images/person.jpg</code> ഫോൾഡറിലോ അല്ലെങ്കിൽ ഓൺലൈൻ ലിങ്കുകളായോ നൽകാം.</p>
-        <p>4. ശേഷം ഈ ഫയൽ നിങ്ങളുടെ GitHub Repository-ൽ അപ്‌ലോഡ് ചെയ്ത് <strong>Settings -> Pages</strong> വഴി ഒരു മിനിറ്റിനുള്ളിൽ ഫ്രീയായി ലൈവ് ആക്കാവുന്നതാണ്!</p>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="mt-16 border-t border-heritage-gold/20 py-8 text-center text-xs text-gray-400 font-malayalam bg-heritage-surface/60">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center space-x-2">
-        <i class="fa-solid fa-heart text-red-500"></i>
-        <span>കുടുംബത്തിന്റെ സ്നേഹസ്മരണയ്ക്കായി സമർപ്പിക്കുന്നു</span>
-      </div>
-      <div class="text-heritage-goldLight/60">
-        &copy; 2026 ഞങ്ങളുടെ കുടുംബവൃക്ഷം • GitHub Pages Ready
-      </div>
-    </div>
-  </footer>
-
-  <!-- MEMBER PROFILE MODAL -->
-  <div id="profileModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden transition-opacity duration-300">
-    <div class="glass-card max-w-lg w-full rounded-3xl p-6 sm:p-8 relative border-2 border-heritage-gold/40 shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="modalCard">
-      
-      <!-- Close Button -->
-      <button onclick="closeProfileModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-heritage-emerald text-heritage-gold border border-heritage-gold/40 flex items-center justify-center hover:bg-heritage-gold hover:text-heritage-emeraldDeep transition">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-
-      <div class="flex flex-col items-center text-center">
-        <!-- Photo -->
-        <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-full p-1 bg-gradient-to-tr from-heritage-gold via-heritage-goldLight to-heritage-emerald shadow-2xl mb-4">
-          <img 
-            id="modalImage" 
-            src="" 
-            alt="Profile Photo" 
-            class="w-full h-full object-cover rounded-full border-2 border-heritage-surface"
-            onerror="this.src='https://placehold.co/400x400/0B3B24/D4AF37?text=ഫോട്ടോ'"
-          >
-        </div>
-
-        <span id="modalRoleBadge" class="bg-heritage-gold/20 text-heritage-gold text-xs font-semibold px-3 py-1 rounded-full border border-heritage-gold/40 mb-2 font-malayalam">
-          കുടുംബാംഗം
-        </span>
-
-        <h3 id="modalName" class="text-2xl font-bold text-white mb-1">
-          പേര്
-        </h3>
-
-        <p id="modalDetails" class="text-xs text-heritage-goldLight/80 font-malayalam mb-4">
-          ജനനം: 1980 | സ്ഥലം: കോഴിക്കോട്
-        </p>
-
-        <!-- Bio / Quote -->
-        <div class="w-full bg-heritage-surface/80 rounded-2xl p-4 border border-heritage-cardBorder text-left text-sm text-gray-300 font-malayalam mb-4">
-          <h4 class="text-xs font-bold text-heritage-gold uppercase tracking-wider mb-1">വിവരണം / വിശേഷങ്ങൾ:</h4>
-          <p id="modalBio" class="text-xs text-gray-300 leading-relaxed">
-            കുടുംബത്തിലെ പ്രിയപ്പെട്ട അംഗം.
-          </p>
-        </div>
-
-        <!-- Contact & Additional Attributes -->
-        <div class="grid grid-cols-2 gap-3 w-full text-xs font-malayalam text-left mb-6">
-          <div class="bg-heritage-emerald/40 p-2.5 rounded-xl border border-heritage-cardBorder">
-            <span class="text-gray-400 block text-[10px]">തൊഴിൽ / രംഗം</span>
-            <span id="modalOccupation" class="text-white font-medium">ബിസിനസ്സ്</span>
-          </div>
-          <div class="bg-heritage-emerald/40 p-2.5 rounded-xl border border-heritage-cardBorder">
-            <span class="text-gray-400 block text-[10px]">താമസസ്ഥലം</span>
-            <span id="modalLocation" class="text-white font-medium">എറണാകുളം</span>
+function renderModal(person, title) {
+  document.getElementById('modal-root').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <h3>${title}</h3>
+        <div class="photo-upload">
+          <img id="photoPreview" src="${person.photo || avatarHTML(person).match(/src="([^"]+)"/)[1]}">
+          <div>
+            <label class="btn" style="cursor:pointer">
+              📷 ഫോട്ടോ മാറ്റുക
+              <input type="file" accept="image/*" style="display:none" onchange="handlePhotoChange(event)">
+            </label>
+            <div style="font-size:11px;color:#666;margin-top:6px">JPG/PNG — ചെറിയ ഫോട്ടോ (500KB-ൽ താഴെ) നല്ലത്</div>
           </div>
         </div>
-
-        <button onclick="closeProfileModal()" class="w-full py-2.5 rounded-xl bg-heritage-gold text-heritage-emeraldDeep font-bold text-sm hover:bg-heritage-goldLight transition shadow-lg">
-          ശരി / അടയ്ക്കുക
-        </button>
+        <div class="form-row">
+          <div class="form-group"><label>പേര് *</label><input id="f_name" value="${escapeHtml(person.name||'')}"></div>
+          <div class="form-group"><label>ബന്ധം</label><input id="f_relation" value="${escapeHtml(person.relation||'')}" placeholder="മകൻ / മകൾ / ഭാര്യ"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>ഫോൺ</label><input id="f_phone" value="${escapeHtml(person.phone||'')}"></div>
+          <div class="form-group"><label>ഇമെയിൽ</label><input id="f_email" value="${escapeHtml(person.email||'')}"></div>
+        </div>
+        <div class="form-group"><label>വിലാസം</label><textarea id="f_address" rows="2">${escapeHtml(person.address||'')}</textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Facebook</label><input id="f_fb" value="${escapeHtml(person.social?.facebook||'')}"></div>
+          <div class="form-group"><label>Instagram</label><input id="f_ig" value="${escapeHtml(person.social?.instagram||'')}"></div>
+        </div>
+        <div class="form-group"><label>WhatsApp</label><input id="f_wa" value="${escapeHtml(person.social?.whatsapp||'')}"></div>
+        <div class="modal-actions">
+          <button class="btn" onclick="closeModal()">റദ്ദാക്കുക</button>
+          <button class="btn btn-primary" onclick="saveModal()">സേവ് ചെയ്യുക</button>
+        </div>
       </div>
+    </div>`;
+  setTimeout(() => document.getElementById('f_name')?.focus(), 100);
+}
 
-    </div>
-  </div>
+function handlePhotoChange(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    pendingPhoto = ev.target.result;
+    document.getElementById('photoPreview').src = pendingPhoto;
+  };
+  reader.readAsDataURL(file);
+}
 
+function saveModal() {
+  const current = findNode(state.path);
+  const data = {
+    name: document.getElementById('f_name').value.trim(),
+    relation: document.getElementById('f_relation').value.trim(),
+    phone: document.getElementById('f_phone').value.trim(),
+    email: document.getElementById('f_email').value.trim(),
+    address: document.getElementById('f_address').value.trim(),
+    social: {
+      facebook: document.getElementById('f_fb').value.trim(),
+      instagram: document.getElementById('f_ig').value.trim(),
+      whatsapp: document.getElementById('f_wa').value.trim()
+    }
+  };
+  if (!data.name) { alert('പേര് നിർബന്ധമാണ്'); return; }
+  if (pendingPhoto !== undefined) data.photo = pendingPhoto;
 
-  <!-- JAVASCRIPT & DATA STRUCTURE -->
-  <script>
-    /**
-     * =========================================================================
-     * ഫാമിലി ഡാറ്റ (FAMILY DATA CONFIGURATION)
-     * =========================================================================
-     * താങ്കൾക്ക് താഴെ കാണുന്ന പേരുകളും, ഫോട്ടോകളും, ജനനത്തീയതികളും 
-     * ഇവിടെ നേരിട്ട് തിരുത്താവുന്നതാണ്.
-     */
-    const familyData = {
-      // തലമുറ 1: മുത്തശ്ശനും മുത്തശ്ശിയും
-      grandparents: {
-        grandfather: {
-          id: 'gp_1',
-          name: 'കെ. മാധവൻ നായർ',
-          role: 'മുത്തശ്ശൻ (Grandfather)',
-          years: '1925 - 2005',
-          photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
-          location: 'തൃശൂർ',
-          occupation: 'കൃഷി & അധ്യാപകൻ',
-          bio: 'കുടുംബത്തിന്റെ വഴികാട്ടിയും സ്നേഹനിധിയുമായിരുന്ന കാരണവർ. നാടിന്റെ വികസനത്തിന് ഒട്ടേറെ സംഭാവനകൾ നൽകി.'
-        },
-        grandmother: {
-          id: 'gp_2',
-          name: 'ഭാരതിയമ്മ',
-          role: 'മുത്തശ്ശി (Grandmother)',
-          years: '1930 - 2012',
-          photo: 'https://images.unsplash.com/photo-1544717302-de2939b7ef71?auto=format&fit=crop&w=400&q=80',
-          location: 'തൃശൂർ',
-          occupation: 'ഗൃഹനാഥ',
-          bio: 'കരുണയും സ്നേഹവും നിറഞ്ഞ അമ്മമനസ്സ്. പരമ്പരാഗത തനിമയും സ്നേഹമൂല്യങ്ങളും മക്കളിലേക്ക് പകർന്നു നൽകി.'
-        }
-      },
-
-      // തലമുറ 2: 8 മക്കൾ (അവരുടെ പങ്കാളികളും, മക്കളും, പേരക്കുട്ടികളും)
-      branches: [
-        {
-          id: 'branch_1',
-          order: 1,
-          name: 'സുരേഷ് കുമാർ',
-          relation: 'ആദ്യത്തെ മകൻ',
-          photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-          years: 'ജനനം: 1952',
-          occupation: 'റിട്ട. ബാങ്ക് മാനേജർ',
-          location: 'കൊച്ചി',
-          bio: 'കുടുംബത്തിലെ മൂത്ത മകൻ. പഠനകാര്യങ്ങളിലും കുടുംബകാര്യങ്ങളിലും എപ്പോഴും മുന്നിൽ.',
-          spouse: {
-            id: 'sp_1',
-            name: 'ശോഭന',
-            relation: 'ഭാര്യ',
-            photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
-            occupation: 'റിട്ട. അധ്യാപിക',
-            location: 'കൊച്ചി',
-            bio: 'സ്നേഹസമ്പന്നയായ അധ്യാപിക.'
-          },
-          children: [
-            {
-              id: 'c_1_1',
-              name: 'അശ്വിൻ കുമാർ',
-              relation: 'മകൻ',
-              photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-              occupation: 'സോഫ്റ്റ്‌വെയർ എഞ്ചിനീയർ',
-              location: 'ബെംഗളൂരു',
-              bio: 'ടെക്നോളജി വിദഗ്ദ്ധൻ.',
-              spouse: {
-                id: 'sp_c_1_1',
-                name: 'പ്രിയ',
-                relation: 'ഭാര്യ',
-                photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-                occupation: 'ഡിസൈനർ'
-              },
-              children: [
-                {
-                  id: 'gc_1_1_1',
-                  name: 'ധ്രുവ് അശ്വിൻ',
-                  relation: 'പേരക്കുട്ടി (മകന്റെ മകൻ)',
-                  photo: 'https://images.unsplash.com/photo-1543332164-6e82f355badc?auto=format&fit=crop&w=400&q=80',
-                  occupation: 'വിദ്യാർത്ഥി',
-                  location: 'ബെംഗളൂരു',
-                  bio: 'നാലാം ക്ലാസ് വിദ്യാർത്ഥി, ചിത്രരചനയിൽ പ്രാഗത്ഭ്യം.'
-                }
-              ]
-            },
-            {
-              id: 'c_1_2',
-              name: 'അഞ്ജലി സുരേഷ്',
-              relation: 'മകൾ',
-              photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-              occupation: 'ഡോക്ടർ (MBBS, MD)',
-              location: 'യുകെ (UK)',
-              bio: 'യുകെയിൽ ശിശുരോഗ വിദഗ്ദ്ധയായി ജോലി ചെയ്യുന്നു.',
-              spouse: {
-                id: 'sp_c_1_2',
-                name: 'ഡോ. വിവേക്',
-                relation: 'ഭർത്താവ്',
-                photo: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80',
-                occupation: 'സർജൻ'
-              },
-              children: [
-                {
-                  id: 'gc_1_2_1',
-                  name: 'ആരോഹി',
-                  relation: 'പേരക്കുട്ടി (മകളുടെ മകൾ)',
-                  photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-                  occupation: 'കുട്ടി',
-                  location: 'യുകെ'
-                }
-              ]
-            }
-          ]
-        },
-        {
-          id: 'branch_2',
-          order: 2,
-          name: 'ലളിത ദേവി',
-          relation: 'രണ്ടാമത്തെ മകൾ',
-          photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80',
-          years: 'ജനനം: 1954',
-          occupation: 'റിട്ട. പ്രിൻസിപ്പാൾ',
-          location: 'തിരുവനന്തപുരം',
-          bio: 'വിദ്യാഭ്യാസ രംഗത്ത് 35 വർഷത്തെ സേവനം.',
-          spouse: {
-            id: 'sp_2',
-            name: 'വേണുഗോപാൽ',
-            relation: 'ഭർത്താവ്',
-            photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
-            occupation: 'റിട്ട. സർക്കാർ ഉദ്യോഗസ്ഥൻ',
-            location: 'തിരുവനന്തപുരം'
-          },
-          children: [
-            {
-              id: 'c_2_1',
-              name: 'വിപിൻ വേണുഗോപാൽ',
-              relation: 'മകൻ',
-              photo: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80',
-              occupation: 'ആർക്കിടെക്റ്റ്',
-              location: 'ദുബായ്',
-              spouse: {
-                id: 'sp_c_2_1',
-                name: 'രശ്മി',
-                relation: 'ഭാര്യ',
-                photo: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80',
-                occupation: 'ബാങ്കർ'
-              },
-              children: [
-                {
-                  id: 'gc_2_1_1',
-                  name: 'ദിയ വിപിൻ',
-                  relation: 'പേരക്കുട്ടി',
-                  photo: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=80',
-                  occupation: 'വിദ്യാർത്ഥിനി',
-                  location: 'ദുബായ്'
-                }
-              ]
-            }
-          ]
-        },
-        {
-          id: 'branch_3',
-          order: 3,
-          name: 'രവീന്ദ്രൻ നായർ',
-          relation: 'മൂന്നാമത്തെ മകൻ',
-          photo: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80',
-          years: 'ജനനം: 1957',
-          occupation: 'കൃഷി & വ്യവസായം',
-          location: 'തൃശൂർ',
-          bio: 'കുടുംബത്തിന്റെ തറവാടും കൃഷിയിടങ്ങളും പരിപാലിച്ചു പോരുന്നു.',
-          spouse: {
-            id: 'sp_3',
-            name: 'ഗീത രവീന്ദ്രൻ',
-            relation: 'ഭാര്യ',
-            photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
-            occupation: 'ഗൃഹനാഥ'
-          },
-          children: [
-            {
-              id: 'c_3_1',
-              name: 'രോഹിത് ആർ',
-              relation: 'മകൻ',
-              photo: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80',
-              occupation: 'ബിസിനസ്സ്',
-              location: 'തൃശൂർ',
-              children: []
-            },
-            {
-              id: 'c_3_2',
-              name: 'രേഷ്മ രവീന്ദ്രൻ',
-              relation: 'മകൾ',
-              photo: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80',
-              occupation: 'ചാർട്ടേഡ് അക്കൗണ്ടന്റ്',
-              location: 'മുംബൈ',
-              children: []
-            }
-          ]
-        },
-        {
-          id: 'branch_4',
-          order: 4,
-          name: 'പ്രഭാകരൻ കെ',
-          relation: 'നാലാമത്തെ മകൻ',
-          photo: 'https://images.unsplash.com/photo-1513956589380-bad6acb9b9d4?auto=format&fit=crop&w=400&q=80',
-          years: 'ജനനം: 1960',
-          occupation: 'എഞ്ചിനീയർ (റിട്ട.)',
-          location: 'ചെന്നൈ',
-          bio: 'റെയിൽവേയിൽ സീനിയർ എഞ്ചിനീയറായിരുന്നു.',
-          spouse: {
-            id: 'sp_4',
-            name: 'ഉഷ പ്രഭാകർ',
-            relation: 'ഭാര്യ',
-            photo: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=400&q=80',
-            occupation: 'അധ്യാപിക'
-          },
-          children: [
-            {
-              id: 'c_4_1',
-              name: 'സച്ചിൻ പ്രഭാകർ',
-              relation: 'മകൻ',
-              photo: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80',
-              occupation: 'ഡാറ്റ സയന്റിസ്റ്റ്',
-              location: 'കാനഡ',
-              children: []
-            }
-          ]
-        },
-        {
-          id: 'branch_5',
-          order: 5,
-          name: 'വാസന്തി മേനോൻ',
-          relation: 'അഞ്ചാമത്തെ മകൾ',
-          photo: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80',
-          years: 'ജനനം: 1963',
-          occupation: 'സാമൂഹിക പ്രവർത്തക',
-          location: 'പാലക്കാട്',
-          bio: 'സ്ത്രീശാക്തീകരണ പ്രവർത്തനങ്ങളിൽ സജീവം.',
-          spouse: {
-            id: 'sp_5',
-            name: 'മോഹൻദാസ് മേനോൻ',
-            relation: 'ഭർത്താവ്',
-            photo: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=400&q=80',
-            occupation: 'റിട്ട. പ്രൊഫസർ'
-          },
-          children: [
-            {
-              id: 'c_5_1',
-              name: 'മേഘ മോഹൻ',
-              relation: 'മകൾ',
-              photo: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
-              occupation: 'ജേർണലിസ്റ്റ്',
-              location: 'ഡൽഹി',
-              children: []
-            },
-            {
-              id: 'c_5_2',
-              name: 'മനു മോഹൻ',
-              relation: 'മകൻ',
-              photo: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=400&q=80',
-              occupation: 'സിനിമ പ്രവർത്തകൻ',
-              location: 'കൊച്ചി',
-              children: []
-            }
-          ]
-        },
-        {
-          id: 'branch_6',
-          order: 6,
-          name: 'ജയപ്രകാശ്',
-          relation: 'ആറാമത്തെ മകൻ',
-          photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-          years: 'ജനനം: 1966',
-          occupation: 'ബിസിനസ്സ് ഉടമ',
-          location: 'കണ്ണൂർ',
-          bio: 'വിവിധ ബിസിനസ്സ് സംരംഭങ്ങൾക്ക് നേതൃത്വം നൽകുന്നു.',
-          spouse: {
-            id: 'sp_6',
-            name: 'ബിന്ദു ജെ',
-            relation: 'ഭാര്യ',
-            photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
-            occupation: 'ഗൃഹനാഥ'
-          },
-          children: [
-            {
-              id: 'c_6_1',
-              name: 'അർജുൻ പ്രകാശ്',
-              relation: 'മകൻ',
-              photo: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80',
-              occupation: 'എം.ബി.എ വിദ്യാർത്ഥി',
-              location: 'പൂനെ',
-              children: []
-            }
-          ]
-        },
-        {
-          id: 'branch_7',
-          order: 7,
-          name: 'രാധിക വർമ്മ',
-          relation: 'ഏഴാമത്തെ മകൾ',
-          photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
-          years: 'ജനനം: 1969',
-          occupation: 'നർത്തകി & അധ്യാപിക',
-          location: 'കോഴിക്കോട്',
-          bio: 'കേരള കലാമണ്ഡലത്തിൽ നിന്ന് ഭരതനാട്യം അഭ്യസിച്ചു.',
-          spouse: {
-            id: 'sp_7',
-            name: 'ശ്രീകുമാർ വർമ്മ',
-            relation: 'ഭർത്താവ്',
-            photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80',
-            occupation: 'ബാങ്ക് ഓഫീസർ'
-          },
-          children: [
-            {
-              id: 'c_7_1',
-              name: 'ഗൗരി വർമ്മ',
-              relation: 'മകൾ',
-              photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-              occupation: 'നിയമ വിദ്യാർത്ഥിനി',
-              location: 'ബെംഗളൂരു',
-              children: []
-            }
-          ]
-        },
-        {
-          id: 'branch_8',
-          order: 8,
-          name: 'ഹരിഹരൻ നായർ',
-          relation: 'എട്ടാമത്തെ മകൻ (ഇളയ മകൻ)',
-          photo: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=400&q=80',
-          years: 'ജനനം: 1973',
-          occupation: 'ഐ.ടി കൺസൾട്ടന്റ്',
-          location: 'ഖത്തർ / തൃശൂർ',
-          bio: 'കുടുംബത്തിലെ ഇളയ മകൻ. കുടുംബ സംഗമങ്ങളുടെ പ്രധാന സംഘാടകൻ.',
-          spouse: {
-            id: 'sp_8',
-            name: 'ജ്യോതി ഹരിഹരൻ',
-            relation: 'ഭാര്യ',
-            photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80',
-            occupation: 'ഫിനാൻസ് അനലിസ്റ്റ്'
-          },
-          children: [
-            {
-              id: 'c_8_1',
-              name: 'സിദ്ധാർത്ഥ് ഹരി',
-              relation: 'മകൻ',
-              photo: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80',
-              occupation: 'സ്കൂൾ വിദ്യാർത്ഥി',
-              location: 'ദോഹ, ഖത്തർ',
-              children: []
-            },
-            {
-              id: 'c_8_2',
-              name: 'തൻവി ഹരി',
-              relation: 'മകൾ',
-              photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-              occupation: 'കുട്ടി',
-              location: 'ദോഹ, ഖത്തർ',
-              children: []
-            }
-          ]
-        }
-      ]
-    };
-
-    // Current active selected branch (Defaults to branch 1)
-    let activeBranchId = 'branch_1';
-
-    // Initialize application on load
-    window.addEventListener('DOMContentLoaded', () => {
-      renderGrandparentsInfo();
-      renderChildrenGrid();
-      renderSelectedBranchTree(activeBranchId);
-      setupSearch();
+  if (editingContext.target === 'person') {
+    Object.assign(current, data);
+    current.gender = /മകൾ|അമ്മ|ഭാര്യ|സ്ത്രീ/i.test(data.relation) ? 'female' : (current.gender || 'male');
+  } else if (editingContext.target === 'spouse') {
+    if (!current.spouse) current.spouse = {};
+    Object.assign(current.spouse, data);
+    current.spouse.gender = 'female';
+  } else if (editingContext.target === 'child-new') {
+    if (!current.children) current.children = [];
+    current.children.push({
+      id: genId(), ...data,
+      photo: data.photo || null,
+      gender: /മകൾ|അമ്മ|ഭാര്യ|സ്ത്രീ/i.test(data.relation) ? 'female' : 'male',
+      spouse: null, children: []
     });
+  }
+  saveData(); closeModal(); render();
+}
+function closeModal() { document.getElementById('modal-root').innerHTML = ''; editingContext = null; pendingPhoto = undefined; }
 
-    // Populate Grandparents Hero
-    function renderGrandparentsInfo() {
-      const gp = familyData.grandparents;
-      document.getElementById('grandfatherName').textContent = gp.grandfather.name;
-      document.getElementById('grandfatherDates').textContent = gp.grandfather.years;
-      document.getElementById('grandfatherImg').src = gp.grandfather.photo;
+/* ============ EXPORT / IMPORT / RESET ============ */
+function exportData() {
+  const blob = new Blob([JSON.stringify(state.data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'family-tree-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click(); URL.revokeObjectURL(url);
+}
+function importData(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!parsed.name) throw new Error('Invalid format');
+      state.data = parsed; state.path = ['root'];
+      saveData(); render();
+      alert('✅ ഇംപോർട്ട് വിജയിച്ചു');
+    } catch (err) { alert('❌ ഇംപോർട്ട് പരാജയപ്പെട്ടു: ' + err.message); }
+  };
+  reader.readAsText(file); e.target.value = '';
+}
+function resetData() {
+  if (!confirm('എല്ലാ മാറ്റങ്ങളും നഷ്ടമാകും. തുടരണോ?')) return;
+  state.data = JSON.parse(JSON.stringify(defaultData));
+  state.path = ['root'];
+  saveData(); render();
+}
 
-      document.getElementById('grandmotherName').textContent = gp.grandmother.name;
-      document.getElementById('grandmotherDates').textContent = gp.grandmother.years;
-      document.getElementById('grandmotherImg').src = gp.grandmother.photo;
-    }
-
-    // Render 8 Children Grid
-    function renderChildrenGrid() {
-      const grid = document.getElementById('childrenGrid');
-      grid.innerHTML = '';
-
-      familyData.branches.forEach((branch) => {
-        const isActive = branch.id === activeBranchId;
-        const card = document.createElement('div');
-        card.className = `flex flex-col items-center p-3 rounded-2xl cursor-pointer transition-all duration-300 transform hover:-translate-y-1.5 ${
-          isActive 
-            ? 'glass-card-active scale-105' 
-            : 'glass-card hover:border-heritage-gold/50'
-        }`;
-        card.onclick = () => selectBranch(branch.id);
-
-        card.innerHTML = `
-          <div class="relative mb-2">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 ${isActive ? 'bg-heritage-gold' : 'bg-heritage-cardBorder'} shadow-md">
-              <img 
-                src="${branch.photo}" 
-                alt="${branch.name}" 
-                class="w-full h-full object-cover rounded-full"
-                onerror="this.src='https://placehold.co/150x150/0B3B24/D4AF37?text=${branch.order}'"
-              />
-            </div>
-            <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full ${isActive ? 'bg-heritage-gold text-heritage-emeraldDeep' : 'bg-heritage-emerald text-heritage-gold'} text-[10px] font-bold flex items-center justify-center border border-heritage-gold">
-              ${branch.order}
-            </span>
-          </div>
-          <span class="text-xs font-bold text-white text-center line-clamp-1 group-hover:text-heritage-gold font-malayalam">
-            ${branch.name}
-          </span>
-          <span class="text-[10px] text-gray-400 text-center font-malayalam mt-0.5">
-            ${branch.relation}
-          </span>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    // Switch selected branch
-    function selectBranch(branchId) {
-      activeBranchId = branchId;
-      renderChildrenGrid();
-      renderSelectedBranchTree(branchId);
-      
-      // Smooth scroll down to tree section if on mobile
-      if (window.innerWidth < 768) {
-        scrollToSection('selectedBranchSection');
-      }
-    }
-
-    // Render detailed tree for selected branch (Branch Owner + Spouse -> Children -> Grandchildren)
-    function renderSelectedBranchTree(branchId) {
-      const branch = familyData.branches.find(b => b.id === branchId);
-      if (!branch) return;
-
-      // Update Header info
-      document.getElementById('selectedBranchBadge').textContent = branch.order;
-      document.getElementById('selectedBranchTitle').textContent = `${branch.name} & കുടുംബം`;
-
-      const container = document.getElementById('branchTreeContainer');
-      container.innerHTML = '';
-
-      // --- LEVEL 1: Branch Head & Spouse (താഴെ ദമ്പതികൾ) ---
-      const parentsWrapper = document.createElement('div');
-      parentsWrapper.className = 'flex flex-col items-center';
-
-      let spouseHtml = '';
-      if (branch.spouse) {
-        spouseHtml = `
-          <div class="flex items-center justify-center px-3 text-heritage-gold">
-            <i class="fa-solid fa-heart text-base sm:text-xl animate-pulse"></i>
-          </div>
-          <!-- Spouse Card -->
-          <div class="glass-card p-3 sm:p-4 rounded-2xl flex items-center space-x-3 cursor-pointer hover:border-heritage-gold transition max-w-[260px] w-full" onclick='openProfileModal(${JSON.stringify(branch.spouse)})'>
-            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full p-0.5 bg-heritage-gold/50 flex-shrink-0">
-              <img src="${branch.spouse.photo}" alt="${branch.spouse.name}" class="w-full h-full object-cover rounded-full" onerror="this.src='https://placehold.co/150x150/0B3B24/D4AF37?text=ഭാര്യ'"/>
-            </div>
-            <div class="overflow-hidden">
-              <span class="text-[10px] bg-heritage-emerald px-2 py-0.5 rounded text-heritage-gold font-bold">${branch.spouse.relation || 'പങ്കാളി'}</span>
-              <h4 class="text-sm font-bold text-white truncate mt-1">${branch.spouse.name}</h4>
-              <p class="text-[11px] text-gray-400 truncate">${branch.spouse.occupation || ''}</p>
-            </div>
-          </div>
-        `;
-      }
-
-      parentsWrapper.innerHTML = `
-        <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 w-full">
-          <!-- Main Child Card -->
-          <div class="glass-card-active p-3 sm:p-4 rounded-2xl flex items-center space-x-3 cursor-pointer hover:scale-102 transition max-w-[280px] w-full border-2 border-heritage-gold" onclick='openProfileModal(${JSON.stringify(branch)})'>
-            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full p-0.5 bg-heritage-gold flex-shrink-0 shadow-lg">
-              <img src="${branch.photo}" alt="${branch.name}" class="w-full h-full object-cover rounded-full" onerror="this.src='https://placehold.co/150x150/0B3B24/D4AF37?text=${branch.order}'"/>
-            </div>
-            <div class="overflow-hidden">
-              <span class="text-[10px] bg-heritage-gold text-heritage-emeraldDeep px-2 py-0.5 rounded font-bold uppercase">${branch.order}-ാം ശാഖ</span>
-              <h4 class="text-base font-bold text-white truncate mt-1">${branch.name}</h4>
-              <p class="text-xs text-heritage-goldLight truncate">${branch.occupation || ''}</p>
-              <p class="text-[10px] text-gray-400 truncate">${branch.location || ''}</p>
-            </div>
-          </div>
-          ${spouseHtml}
-        </div>
-      `;
-      container.appendChild(parentsWrapper);
-
-      // --- LEVEL 2: Children (മക്കൾ) ---
-      if (branch.children && branch.children.length > 0) {
-        // Vertical connector
-        const connV1 = document.createElement('div');
-        connV1.className = 'flex justify-center my-4';
-        connV1.innerHTML = `<div class="tree-connector-v h-8"></div>`;
-        container.appendChild(connV1);
-
-        // Subtitle
-        const childrenTitle = document.createElement('div');
-        childrenTitle.className = 'text-center mb-6';
-        childrenTitle.innerHTML = `
-          <span class="text-xs font-bold text-heritage-gold uppercase tracking-wider bg-heritage-emerald/80 px-4 py-1 rounded-full border border-heritage-gold/30">
-            തലമുറ 3: മക്കൾ (${branch.children.length})
-          </span>
-        `;
-        container.appendChild(childrenTitle);
-
-        // Children Cards Grid
-        const childrenRow = document.createElement('div');
-        childrenRow.className = `grid grid-cols-1 ${branch.children.length > 1 ? 'md:grid-cols-2 lg:grid-cols-3' : 'max-w-md mx-auto'} gap-6`;
-
-        branch.children.forEach(child => {
-          const childBlock = document.createElement('div');
-          childBlock.className = 'flex flex-col items-center bg-heritage-surface/60 rounded-2xl p-4 border border-heritage-cardBorder relative';
-
-          // Child & Child's spouse if exists
-          let childSpouseHtml = '';
-          if (child.spouse) {
-            childSpouseHtml = `
-              <div class="text-xs text-heritage-gold px-1"><i class="fa-solid fa-ring"></i></div>
-              <div class="flex items-center space-x-2 bg-heritage-card/60 p-2 rounded-xl border border-heritage-cardBorder/60" onclick='event.stopPropagation(); openProfileModal(${JSON.stringify(child.spouse)})'>
-                <img src="${child.spouse.photo || ''}" class="w-8 h-8 rounded-full object-cover" onerror="this.src='https://placehold.co/100x100/0B3B24/D4AF37?text=ഭാര്യ/ഭർത്താവ്'"/>
-                <div class="text-left text-xs">
-                  <div class="font-bold text-white">${child.spouse.name}</div>
-                  <div class="text-[9px] text-gray-400">${child.spouse.relation || 'പങ്കാളി'}</div>
-                </div>
-              </div>
-            `;
-          }
-
-          // Grandchildren of this child (പേരക്കുട്ടികൾ)
-          let grandChildrenHtml = '';
-          if (child.children && child.children.length > 0) {
-            grandChildrenHtml = `
-              <div class="w-full mt-4 pt-3 border-t border-heritage-cardBorder">
-                <span class="text-[10px] text-heritage-gold uppercase font-bold tracking-wider block mb-2 text-center">
-                  <i class="fa-solid fa-baby text-xs mr-1"></i> തലമുറ 4: പേരക്കുട്ടികൾ
-                </span>
-                <div class="flex flex-wrap items-center justify-center gap-2">
-                  ${child.children.map(gc => `
-                    <div class="glass-card px-2.5 py-1.5 rounded-xl flex items-center space-x-2 cursor-pointer hover:border-heritage-gold transition text-left" onclick='event.stopPropagation(); openProfileModal(${JSON.stringify(gc)})'>
-                      <img src="${gc.photo || ''}" class="w-7 h-7 rounded-full object-cover" onerror="this.src='https://placehold.co/100x100/0B3B24/D4AF37?text=കുട്ടി'"/>
-                      <div>
-                        <div class="text-xs font-bold text-white">${gc.name}</div>
-                        <div class="text-[9px] text-heritage-goldLight/70">${gc.relation || 'പേരക്കുട്ടി'}</div>
-                      </div>
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            `;
-          }
-
-          childBlock.innerHTML = `
-            <!-- Child Primary Card -->
-            <div class="flex items-center justify-between w-full cursor-pointer hover:opacity-90" onclick='openProfileModal(${JSON.stringify(child)})'>
-              <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 rounded-full p-0.5 bg-heritage-gold/60 shadow">
-                  <img src="${child.photo || ''}" alt="${child.name}" class="w-full h-full object-cover rounded-full" onerror="this.src='https://placehold.co/120x120/0B3B24/D4AF37?text=മക്കൾ'"/>
-                </div>
-                <div class="text-left">
-                  <span class="text-[10px] bg-heritage-emerald text-heritage-gold px-2 py-0.5 rounded font-bold">${child.relation || 'മക്കൾ'}</span>
-                  <h5 class="text-sm font-bold text-white">${child.name}</h5>
-                  <p class="text-[11px] text-gray-400">${child.occupation || ''}</p>
-                </div>
-              </div>
-              <i class="fa-solid fa-chevron-right text-xs text-heritage-gold/50"></i>
-            </div>
-
-            <!-- Couple row if child is married -->
-            ${childSpouseHtml ? `<div class="flex items-center justify-center gap-2 mt-3 w-full">${childSpouseHtml}</div>` : ''}
-
-            <!-- Grandchildren section -->
-            ${grandChildrenHtml}
-          `;
-
-          childrenRow.appendChild(childBlock);
-        });
-
-        container.appendChild(childrenRow);
-      } else {
-        // No children registered yet placeholder
-        const emptyMsg = document.createElement('div');
-        emptyMsg.className = 'text-center py-6 text-gray-400 text-xs font-malayalam';
-        emptyMsg.textContent = 'ഈ ശാഖയിലെ അടുത്ത തലമുറ വിവരങ്ങൾ ഉടൻ ചേർക്കുന്നതാണ്.';
-        container.appendChild(emptyMsg);
-      }
-    }
-
-    // PROFILE MODAL LOGIC
-    function openProfileModal(member) {
-      if (!member) return;
-
-      document.getElementById('modalName').textContent = member.name || 'പേര് ലഭ്യമല്ല';
-      document.getElementById('modalImage').src = member.photo || 'https://placehold.co/400x400/0B3B24/D4AF37?text=ഫോട്ടോ';
-      document.getElementById('modalRoleBadge').textContent = member.role || member.relation || 'കുടുംബാംഗം';
-      document.getElementById('modalDetails').textContent = member.years ? `${member.years}` : (member.relation || '');
-      document.getElementById('modalBio').textContent = member.bio || `${member.name} ഞങ്ങളുടെ വലിയ കുടുംബത്തിലെ അഭിമാനമായ ഒരു അംഗമാണ്.`;
-      document.getElementById('modalOccupation').textContent = member.occupation || 'വിവരങ്ങൾ നൽകിയിട്ടില്ല';
-      document.getElementById('modalLocation').textContent = member.location || 'കേരളം';
-
-      const modal = document.getElementById('profileModal');
-      const card = document.getElementById('modalCard');
-      modal.classList.remove('hidden');
-      setTimeout(() => {
-        card.classList.remove('scale-95');
-        card.classList.add('scale-100');
-      }, 10);
-    }
-
-    function closeProfileModal() {
-      const modal = document.getElementById('profileModal');
-      const card = document.getElementById('modalCard');
-      card.classList.remove('scale-100');
-      card.classList.add('scale-95');
-      setTimeout(() => {
-        modal.classList.add('hidden');
-      }, 200);
-    }
-
-    // Close modal on click outside
-    document.getElementById('profileModal').addEventListener('click', (e) => {
-      if (e.target.id === 'profileModal') {
-        closeProfileModal();
-      }
-    });
-
-    // SEARCH FUNCTIONALITY
-    function setupSearch() {
-      const input = document.getElementById('memberSearchInput');
-      const dropdown = document.getElementById('searchDropdown');
-
-      // Compile flat list of all members for easy search
-      const allMembers = [];
-
-      // Add Grandparents
-      allMembers.push({ ...familyData.grandparents.grandfather, branchId: null, branchName: 'ഒന്നാം തലമുറ' });
-      allMembers.push({ ...familyData.grandparents.grandmother, branchId: null, branchName: 'ഒന്നാം തലമുറ' });
-
-      // Add branches & descendants
-      familyData.branches.forEach(b => {
-        allMembers.push({ ...b, branchId: b.id, branchName: `${b.order}-ാം ശാഖ (${b.name})` });
-        if (b.spouse) {
-          allMembers.push({ ...b.spouse, branchId: b.id, branchName: `${b.name} ശാഖ` });
-        }
-        if (b.children) {
-          b.children.forEach(c => {
-            allMembers.push({ ...c, branchId: b.id, branchName: `${b.name} ശാഖ` });
-            if (c.spouse) {
-              allMembers.push({ ...c.spouse, branchId: b.id, branchName: `${b.name} ശാഖ` });
-            }
-            if (c.children) {
-              c.children.forEach(gc => {
-                allMembers.push({ ...gc, branchId: b.id, branchName: `${b.name} ശാഖ (പേരക്കുട്ടി)` });
-              });
-            }
-          });
-        }
-      });
-
-      input.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase().trim();
-        if (query.length < 1) {
-          dropdown.classList.add('hidden');
-          return;
-        }
-
-        const filtered = allMembers.filter(m => 
-          (m.name && m.name.toLowerCase().includes(query)) ||
-          (m.location && m.location.toLowerCase().includes(query)) ||
-          (m.occupation && m.occupation.toLowerCase().includes(query)) ||
-          (m.relation && m.relation.toLowerCase().includes(query))
-        );
-
-        if (filtered.length === 0) {
-          dropdown.innerHTML = `<div class="p-3 text-center text-xs text-gray-400 font-malayalam">കുടുംബാംഗങ്ങളെ കണ്ടെത്തിയില്ല</div>`;
-          dropdown.classList.remove('hidden');
-          return;
-        }
-
-        dropdown.innerHTML = filtered.slice(0, 6).map(m => `
-          <div class="p-2.5 flex items-center justify-between hover:bg-heritage-emerald/50 rounded-xl cursor-pointer transition" onclick='onSearchSelect(${JSON.stringify(m).replace(/'/g, "&apos;")})'>
-            <div class="flex items-center space-x-2.5">
-              <img src="${m.photo || ''}" class="w-8 h-8 rounded-full object-cover" onerror="this.src='https://placehold.co/100x100/0B3B24/D4AF37?text=User'"/>
-              <div>
-                <div class="text-xs font-bold text-white font-malayalam">${m.name}</div>
-                <div class="text-[10px] text-heritage-goldLight/70 font-malayalam">${m.relation || m.role || ''} • ${m.branchName || ''}</div>
-              </div>
-            </div>
-            <i class="fa-solid fa-arrow-right text-xs text-heritage-gold/50"></i>
-          </div>
-        `).join('');
-
-        dropdown.classList.remove('hidden');
-      });
-
-      // Hide dropdown on blur/click outside
-      document.addEventListener('click', (e) => {
-        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-          dropdown.classList.add('hidden');
-        }
-      });
-    }
-
-    function onSearchSelect(member) {
-      document.getElementById('searchDropdown').classList.add('hidden');
-      document.getElementById('memberSearchInput').value = '';
-
-      if (member.branchId) {
-        selectBranch(member.branchId);
-        scrollToSection('selectedBranchSection');
-      } else {
-        scrollToSection('rootsSection');
-      }
-      openProfileModal(member);
-    }
-
-    function scrollToSection(id) {
-      const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
-
-    function toggleHelpBox() {
-      const content = document.getElementById('helpContent');
-      const chevron = document.getElementById('helpChevron');
-      content.classList.toggle('hidden');
-      chevron.classList.toggle('rotate-180');
-    }
-  </script>
+/* ============ INIT ============ */
+document.getElementById('importInput').addEventListener('change', importData);
+render();
+</script>
 </body>
 </html>
-```
