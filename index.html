@@ -1,473 +1,266 @@
 <!DOCTYPE html>
 <html lang="ml">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>കുടുംബ വൃക്ഷം | Family Tree</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&family=Noto+Sans+Malayalam:wght@400;500;600&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>കുടുംബ വൃക്ഷം</title>
+<link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Noto+Serif+Malayalam:wght@500;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{
-  font-family:'Inter','Noto Sans Malayalam',sans-serif;
-  background:#0a0a14;
-  background-image:
-    radial-gradient(circle at 20% 10%, rgba(212,175,55,.10), transparent 40%),
-    radial-gradient(circle at 80% 90%, rgba(150,80,200,.08), transparent 40%),
-    linear-gradient(180deg,#0a0a14,#050510);
-  background-attachment:fixed;
-  color:#f0f0f5;min-height:100vh;padding-bottom:40px;line-height:1.5;
-}
-.site-header{text-align:center;padding:48px 20px 24px}
-.site-header::after{content:'';display:block;width:80px;height:2px;background:linear-gradient(90deg,transparent,#d4af37,transparent);margin:20px auto 0}
-.site-header h1{font-family:'Playfair Display','Noto Sans Malayalam',serif;font-size:clamp(30px,6vw,52px);font-weight:700;letter-spacing:1px;background:linear-gradient(135deg,#d4af37,#f5e6a8,#d4af37);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.site-header .subtitle{color:#888;font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-top:8px}
-
-.breadcrumb{max-width:1200px;margin:0 auto 24px;padding:0 24px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px}
-.crumb{color:#999;text-decoration:none;padding:5px 12px;border-radius:20px;transition:all .2s;background:rgba(255,255,255,.03);border:1px solid transparent;font-size:13px}
-.crumb:hover{color:#d4af37;border-color:rgba(212,175,55,.3);background:rgba(212,175,55,.05)}
-.crumb.current{color:#d4af37;background:rgba(212,175,55,.1);border-color:rgba(212,175,55,.3)}
-.sep{color:#555}
-.gen-badge{padding:5px 12px;border-radius:20px;background:linear-gradient(135deg,rgba(212,175,55,.2),rgba(212,175,55,.08));border:1px solid rgba(212,175,55,.4);color:#d4af37;font-size:11px;font-weight:600;letter-spacing:1px}
-
-main{max-width:1200px;margin:0 auto;padding:0 24px}
-.person-section{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:48px}
-@media(max-width:768px){.person-section{grid-template-columns:1fr}}
-
-.person-card{
-  position:relative;
-  background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
-  border:1px solid rgba(212,175,55,.25);border-radius:20px;
-  padding:32px 24px;text-align:center;backdrop-filter:blur(10px);
-  transition:all .3s;overflow:hidden;
-}
-.person-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(212,175,55,.6),transparent)}
-.person-card:hover{transform:translateY(-2px);border-color:rgba(212,175,55,.5);box-shadow:0 20px 40px -20px rgba(212,175,55,.3)}
-.person-card h2{font-family:'Playfair Display','Noto Sans Malayalam',serif;font-size:26px;margin-bottom:6px;color:#fff}
-.person-card .relation{color:#d4af37;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;font-weight:600}
-
-.avatar-wrap{position:relative;display:inline-block;margin-bottom:16px}
-.avatar-wrap img{display:block;border-radius:50%;object-fit:cover;width:140px;height:140px;border:3px solid rgba(212,175,55,.4);box-shadow:0 0 0 6px rgba(212,175,55,.08),0 10px 30px rgba(0,0,0,.4);background:#12121f}
-
-.contact-list{display:flex;flex-direction:column;gap:8px;margin:20px auto 0;max-width:340px;text-align:left}
-.contact-item{display:flex;align-items:center;gap:10px;font-size:13px;color:#b0b0b8;padding:8px 12px;background:rgba(255,255,255,.02);border-radius:8px;border:1px solid rgba(255,255,255,.04);word-break:break-word}
-.contact-item svg{color:#d4af37;flex-shrink:0}
-.contact-item.empty{color:#555;font-style:italic;justify-content:center}
-
-.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:30px;background:transparent;border:1px solid rgba(212,175,55,.4);color:#d4af37;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;letter-spacing:.5px}
-.btn:hover{background:rgba(212,175,55,.1);border-color:#d4af37;box-shadow:0 0 20px rgba(212,175,55,.2)}
-.btn-primary{background:linear-gradient(135deg,#d4af37,#b8942c);color:#0a0a14;border:none;font-weight:600}
-.btn-primary:hover{background:linear-gradient(135deg,#f5d76e,#d4af37);box-shadow:0 10px 30px -10px rgba(212,175,55,.6)}
-.btn-edit{position:absolute;top:16px;right:16px;padding:6px 14px;font-size:12px}
-
-.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(212,175,55,.15);flex-wrap:wrap;gap:12px}
-.section-header h2{font-family:'Playfair Display','Noto Sans Malayalam',serif;font-size:24px;color:#fff;display:flex;align-items:center;gap:12px}
-.count{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:32px;padding:0 10px;border-radius:16px;background:rgba(212,175,55,.15);color:#d4af37;font-size:14px;font-weight:600;border:1px solid rgba(212,175,55,.3)}
-
-.children-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
-
-.child-card{position:relative;background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px 16px;text-align:center;cursor:pointer;transition:all .3s;overflow:hidden}
-.child-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(212,175,55,.1),transparent 70%);opacity:0;transition:opacity .3s;pointer-events:none}
-.child-card:hover{transform:translateY(-4px);border-color:rgba(212,175,55,.4);box-shadow:0 20px 40px -20px rgba(212,175,55,.4)}
-.child-card:hover::before{opacity:1}
-.child-card .avatar-wrap img{width:90px;height:90px;border:2px solid rgba(212,175,55,.3);box-shadow:0 0 0 4px rgba(212,175,55,.06);margin-bottom:8px}
-.child-card h3{font-family:'Playfair Display','Noto Sans Malayalam',serif;font-size:17px;margin:10px 0 4px;color:#fff}
-.child-card .relation{color:#d4af37;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
-.child-card .mini-info{margin-top:10px;font-size:12px;color:#888;display:flex;align-items:center;justify-content:center;gap:6px}
-.child-card .family-count{margin-top:12px;font-size:11px;color:#d4af37;letter-spacing:.5px;padding:4px 12px;border-radius:20px;background:rgba(212,175,55,.08);display:inline-block;border:1px solid rgba(212,175,55,.2)}
-
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:1000;animation:fadeIn .2s}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.modal{background:linear-gradient(145deg,#141422,#0a0a14);border:1px solid rgba(212,175,55,.3);border-radius:20px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;padding:32px;animation:slideUp .3s}
-@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal h3{font-family:'Playfair Display','Noto Sans Malayalam',serif;font-size:22px;color:#d4af37;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(212,175,55,.15)}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:11px;color:#999;margin-bottom:6px;letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
-.form-group input,.form-group textarea{width:100%;padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-family:inherit;font-size:14px;transition:border-color .2s}
-.form-group input:focus,.form-group textarea:focus{outline:none;border-color:rgba(212,175,55,.5);background:rgba(255,255,255,.05)}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:600px){.form-row{grid-template-columns:1fr}}
-.photo-upload{display:flex;align-items:center;gap:16px;margin-bottom:24px;padding:16px;background:rgba(255,255,255,.02);border-radius:12px;border:1px solid rgba(255,255,255,.06)}
-.photo-upload img{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid rgba(212,175,55,.4);background:#12121f}
-.modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.06);flex-wrap:wrap}
-
-.empty-state{text-align:center;padding:40px 20px;color:#666;font-style:italic;background:rgba(255,255,255,.02);border-radius:16px;border:1px dashed rgba(255,255,255,.1)}
-.site-footer{max-width:1200px;margin:60px auto 0;padding:24px;text-align:center;border-top:1px solid rgba(212,175,55,.1);display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+:root{--bg:#081d18;--bg2:#17453a;--card:#0f2d26;--line:#2f6050;--gold:#dcb54a;--gold2:#f3dd93;--ivory:#f7f1de;--mute:#a4beb3;--danger:#e8806f}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Manjari,system-ui,sans-serif;color:var(--ivory);line-height:1.65;min-height:100vh;background:radial-gradient(900px 500px at 50% -80px,var(--bg2),transparent 70%),radial-gradient(circle at 1px 1px,rgba(220,181,74,.1) 1px,transparent 1.6px) 0 0/22px 22px,var(--bg)}
+h1,h2,h3{font-family:'Noto Serif Malayalam',serif;margin:0;font-weight:700}
+.band{height:10px;background:repeating-linear-gradient(90deg,var(--gold) 0 14px,var(--gold2) 14px 18px,var(--bg) 18px 22px)}
+.wrap{max-width:1000px;margin:0 auto;padding:26px 16px 60px}
+header{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px;margin-bottom:22px}
+header h1{font-size:clamp(2rem,7vw,3.3rem);line-height:1.3;background:linear-gradient(180deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+header p{margin:0;color:var(--mute);letter-spacing:.04em}
+.tools{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:6px;border:1px solid var(--line);border-radius:999px;background:rgba(0,0,0,.25)}
+button{font:inherit;cursor:pointer;border:1px solid transparent;background:transparent;color:var(--ivory);padding:5px 16px;border-radius:999px;transition:background .15s,border-color .15s}
+button:hover{border-color:var(--gold)}
+button.on,button.primary{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1a1405;font-weight:700}
+button.danger{color:var(--danger)}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.crumbs{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2px 6px;margin:0 auto 28px;font-size:.95rem;color:var(--mute)}
+.crumbs button{padding:2px 10px;color:var(--mute)}
+.crumbs button.cur{color:var(--gold);border-color:var(--gold)}
+.crumbs span{opacity:.5}
+.couple{display:grid;grid-template-columns:1fr;gap:18px;max-width:440px;margin:0 auto;animation:rise .5s ease both}
+.couple.pair{max-width:none;grid-template-columns:1fr auto 1fr;align-items:center}
+.orn{width:46px;height:46px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;color:var(--gold);font-size:1.4rem;background:var(--bg);box-shadow:0 0 0 5px rgba(220,181,74,.12)}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.card{position:relative;text-align:center;padding:34px 22px 24px;border-radius:20px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.06),transparent 45%),var(--card);box-shadow:0 24px 44px -24px #000,inset 0 0 0 6px var(--card),inset 0 0 0 7px rgba(220,181,74,.28)}
+.av{object-fit:cover;background:linear-gradient(135deg,#236652,#0d2b23);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif Malayalam',serif;color:var(--gold);border:3px solid var(--gold);border-radius:50%;overflow:hidden}
+.card .av{width:150px;height:184px;font-size:3.4rem;margin:0 auto 18px;border-radius:999px 999px 18px 18px;box-shadow:0 0 0 6px var(--card),0 0 0 7px rgba(220,181,74,.5),0 20px 30px -14px #000}
+.card h2{font-size:1.5rem}
+.rel{display:inline-block;margin-top:4px;padding:0 14px;border:1px solid rgba(220,181,74,.5);border-radius:999px;color:var(--gold);font-size:.9rem}
+.yrs{color:var(--mute);font-size:.9rem;margin-top:4px}
+.info{list-style:none;padding:0;margin:18px 0 0;text-align:left}
+.info li{display:flex;gap:10px;padding:8px 2px;border-top:1px solid rgba(47,96,80,.7);font-size:.95rem;word-break:break-word}
+.info b{min-width:82px;color:var(--mute);font-weight:400}
+.info a{color:var(--gold2);text-decoration-color:rgba(220,181,74,.5)}
+.empty{color:var(--mute);font-size:.9rem;margin-top:16px}
+.row-add{margin-top:16px}
+.row-add button{border-color:var(--gold)}
+.sec{margin-top:6px}
+.stem{width:2px;height:48px;margin:0 auto 20px;position:relative;background:linear-gradient(var(--line),var(--gold))}
+.stem::after{content:"";position:absolute;bottom:-6px;left:50%;width:11px;height:11px;background:var(--gold);transform:translateX(-50%) rotate(45deg)}
+.sec h3{font-size:1.35rem;color:var(--gold);text-align:center}
+.sec p.hint{margin:2px 0 22px;color:var(--mute);font-size:.9rem;text-align:center}
+.kids{display:flex;flex-wrap:wrap;justify-content:center;gap:18px}
+.kid{position:relative;width:140px;padding:18px 8px 14px;text-align:center;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.04);transition:transform .18s,border-color .18s,background .18s}
+.kid:hover{transform:translateY(-5px);border-color:var(--gold);background:rgba(220,181,74,.09)}
+.kid .av{width:90px;height:90px;margin:0 auto 10px;font-size:2rem;box-shadow:0 0 0 4px var(--bg),0 0 0 5px rgba(220,181,74,.45)}
+.kid .n{display:block;font-weight:700;line-height:1.3}
+.kid .s{display:inline-block;margin-top:4px;font-size:.78rem;color:var(--mute)}
+.kid .pen{position:absolute;top:8px;right:8px;font-size:.75rem;border:1px solid var(--gold);border-radius:999px;padding:0 8px;background:var(--bg);color:var(--gold)}
+.add{border-style:dashed}
+.add .av{border-style:dashed;color:var(--mute);border-color:var(--line);box-shadow:none}
+dialog{background:var(--card);color:var(--ivory);border:1px solid var(--gold);border-radius:18px;padding:22px;width:min(480px,94vw);max-height:90vh}
+dialog::backdrop{background:rgba(0,0,0,.7)}
+dialog h3{margin-bottom:12px;color:var(--gold)}
+label{display:block;font-size:.85rem;color:var(--mute);margin-top:10px}
+input,textarea{width:100%;font:inherit;color:var(--ivory);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acts{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.acts button{border-color:var(--line)}
+.pv{display:flex;align-items:center;gap:12px}
+.pv .av{width:64px;height:64px;font-size:1.4rem;flex:none}
+  .banner{margin:0 auto 22px;max-width:640px;text-align:center;font-size:.9rem;color:var(--gold2);border:1px dashed var(--gold);border-radius:12px;padding:8px 14px}
+.err{color:var(--danger);font-size:.85rem;min-height:1.3em;margin:6px 0 0}
+#pwd input{margin-top:10px}
+footer{margin-top:56px;color:var(--mute);font-size:.8rem;text-align:center}
+@media(max-width:720px){.couple.pair{grid-template-columns:1fr;max-width:440px}.orn{margin:-6px auto}}
+@media(max-width:520px){.two{grid-template-columns:1fr}.kid{width:calc(50% - 9px)}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<div id="app"></div>
-<div id="modal-root"></div>
-<input type="file" id="importInput" accept=".json" style="display:none">
+<div class="band"></div>
+<div class="wrap">
+  <header>
+    <div><h1>കുടുംബ വൃക്ഷം</h1><p>തലമുറകളിലൂടെ ഒരു യാത്ര</p></div>
+    <div class="tools">
+      <button id="bEdit">തിരുത്തുക</button>
+      <button id="bExp" hidden>സേവ് ഫയൽ (JSON)</button>
+      <button id="bImp" hidden>ഇമ്പോർട്ട്</button>
+      <button id="bRst" hidden class="danger">റീസെറ്റ്</button>
+      <button id="bPw" hidden>അഡ്മിൻ പാസ്‌വേഡ്</button>
+      <input type="file" id="fImp" accept="application/json" hidden>
+    </div>
+  </header>
+  <nav class="crumbs" id="crumbs" aria-label="കുടുംബ പാത"></nav>
+  <main id="main"></main>
+  <footer>ഡാറ്റ ഈ ബ്രൗസറിൽ സൂക്ഷിക്കും. എല്ലാവർക്കും കാണാൻ "സേവ് ഫയൽ" ചെയ്ത് data.json ആയി GitHub-ൽ അപ്‌ലോഡ് ചെയ്യുക.</footer>
+</div>
+
+<dialog id="dlg"><form method="dialog" id="frm"></form></dialog>
+<dialog id="pwd"><form id="pf"><h3 id="pt"></h3><input type="password" id="pi" autocomplete="off" placeholder="പാസ്‌വേഡ്"><input type="password" id="pi2" autocomplete="off" placeholder="വീണ്ടും നൽകുക" hidden><p class="err" id="pe"></p><div class="acts"><button type="button" id="pc">റദ്ദാക്കുക</button><button class="primary">ശരി</button></div></form></dialog>
+
 <script>
-/* ============ ICONS ============ */
-const ICONS = {
-  phone: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.05 15.05 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24 11.36 11.36 0 003.58.57 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.36 11.36 0 00.57 3.58 1 1 0 01-.25 1.01l-2.2 2.2z"/></svg>',
-  email: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>',
-  location: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1112 6.5a2.5 2.5 0 010 5z"/></svg>',
-  facebook: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 10-11.56 9.87v-6.98H7.9V12h2.54V9.8c0-2.5 1.49-3.88 3.77-3.88 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.45 2.89h-2.33v6.98A10 10 0 0022 12z"/></svg>',
-  instagram: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.22.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.05.41 2.22.06 1.27.07 1.65.07 4.86s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.22-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.05.36-2.22.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.22-.41a3.7 3.7 0 01-1.38-.9 3.7 3.7 0 01-.9-1.38c-.16-.42-.36-1.05-.41-2.22-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.22.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.05-.36 2.22-.41 1.27-.06 1.65-.07 4.85-.07M12 0C8.74 0 8.33.01 7.05.07c-1.28.06-2.15.26-2.91.56-.79.3-1.46.72-2.13 1.38A5.87 5.87 0 00.63 4.14c-.3.76-.5 1.63-.56 2.91C.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.28.26 2.15.56 2.91.3.79.72 1.46 1.38 2.13a5.87 5.87 0 002.13 1.38c.76.3 1.63.5 2.91.56 1.28.06 1.69.07 4.95.07s3.67-.01 4.95-.07c1.28-.06 2.15-.26 2.91-.56a5.87 5.87 0 002.13-1.38 5.87 5.87 0 001.38-2.13c.3-.76.5-1.63.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.28-.26-2.15-.56-2.91a5.87 5.87 0 00-1.38-2.13A5.87 5.87 0 0019.86.63c-.76-.3-1.63-.5-2.91-.56C15.67.01 15.26 0 12 0zm0 5.84a6.16 6.16 0 100 12.32 6.16 6.16 0 000-12.32zM12 16a4 4 0 110-8 4 4 0 010 8zm6.4-10.85a1.44 1.44 0 11-2.88 0 1.44 1.44 0 012.88 0z"/></svg>',
-  whatsapp: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.64-2.05-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.61-.92-2.2-.24-.58-.49-.5-.67-.51l-.57-.01c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.06 2.87 1.21 3.07.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.63.71.22 1.36.19 1.87.12.57-.09 1.75-.72 2-1.41.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35zM12.05 21.79h-.01a9.82 9.82 0 01-5-1.37l-.36-.21-3.72.98.99-3.63-.23-.37a9.82 9.82 0 01-1.5-5.24c0-5.42 4.42-9.84 9.85-9.84a9.8 9.8 0 016.96 2.88 9.78 9.78 0 012.88 6.97c0 5.43-4.42 9.85-9.85 9.85zM20.52 3.5A11.82 11.82 0 0012.05.01C5.5.01.17 5.34.17 11.89c0 2.1.55 4.14 1.59 5.94L.06 24l6.31-1.66a11.85 11.85 0 005.68 1.45h.01c6.54 0 11.87-5.33 11.88-11.88a11.8 11.8 0 00-3.42-8.42z"/></svg>',
-  spouse: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'
+const KEY='familyTreeData.v1';
+const uid=()=>'p'+Math.random().toString(36).slice(2,9);
+const P=(name,rel,extra={})=>({id:uid(),name,rel,born:'',died:'',phone:'',email:'',address:'',facebook:'',instagram:'',whatsapp:'',notes:'',photo:'',spouse:null,children:[],...extra});
+
+/* ---- ഡിഫോൾട്ട് മാതൃകാ ഡാറ്റ: ഇത് നിങ്ങളുടെ കുടുംബത്തിന്റെ പേരുകൾ കൊണ്ട് മാറ്റാം ---- */
+function sample(){
+  const r=P('മുത്തച്ഛൻ','കുടുംബത്തലവൻ',{born:'1930',spouse:P('മുത്തശ്ശി','ഭാര്യ',{born:'1935'})});
+  for(let i=1;i<=8;i++) r.children.push(P('മകൻ/മകൾ '+i,i+'-ാമത്തെ സന്താനം'));
+  const c=r.children[0];
+  c.spouse=P('പങ്കാളി','ഭാര്യ');
+  c.children.push(P('കൊച്ചുമകൻ 1','കൊച്ചുമകൻ'),P('കൊച്ചുമകൾ 2','കൊച്ചുമകൾ'));
+  c.children[0].spouse=P('പങ്കാളി','ഭാര്യ');
+  c.children[0].children.push(P('ചെറുമകൻ','അടുത്ത തലമുറ'));
+  return r;
+}
+
+let root,path=[],edit=false,auth=null,ce=false;
+const genLabel=n=>n<1?'മക്കൾ':n<2?'കൊച്ചുമക്കൾ':(n+2)+'-ാം തലമുറ';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(root))}catch(e){alert('സ്ഥലം തികയുന്നില്ല. ചെറിയ ഫോട്ടോ ഉപയോഗിക്കുക അല്ലെങ്കിൽ സേവ് ഫയൽ ചെയ്യുക.')}};
+
+async function load(){
+  try{const s=localStorage.getItem(KEY);if(s){root=JSON.parse(s);return}}catch(e){}
+  try{const r=await fetch('data.json',{cache:'no-cache'});if(r.ok){root=await r.json();return}}catch(e){}
+  root=sample();
+}
+const all=(n=root,o=[])=>{o.push(n);n.children.forEach(c=>all(c,o));return o};
+const can=ns=>edit&&auth&&(auth.lvl==='admin'||ns.some(n=>n.id===auth.id));
+async function hash(x){const b=new TextEncoder().encode(root.auth.salt+'|'+x);
+  if(window.crypto&&crypto.subtle){const d=await crypto.subtle.digest('SHA-256',b);return[...new Uint8Array(d)].map(v=>v.toString(16).padStart(2,'0')).join('')}
+  let h=5381;for(const c of b)h=(h*33^c)>>>0;return'w'+h}
+async function who(pw){
+  if(root.auth.admin===await hash('admin|'+pw))return'admin';
+  for(const n of all())if(n.pw&&n.pw===await hash(n.id+'|'+pw))return n.id;
+  return null}
+function askPw(title,confirm){return new Promise(res=>{
+  const d=$('#pwd'),i=$('#pi'),i2=$('#pi2'),e=$('#pe');
+  $('#pt').textContent=title;i.value=i2.value='';i2.hidden=!confirm;e.textContent='';
+  const done=v=>{d.close();res(v)};
+  $('#pc').onclick=()=>done(null);
+  d.oncancel=()=>res(null);
+  $('#pf').onsubmit=ev=>{ev.preventDefault();const v=i.value;
+    if(confirm){if(v.length<4)return e.textContent='കുറഞ്ഞത് 4 അക്ഷരം വേണം';if(v!==i2.value)return e.textContent='രണ്ടും ഒരുപോലെയല്ല'}
+    if(v)done(v)};
+  d.showModal();i.focus()})}
+async function login(){
+  if(!root.auth){
+    const a=await askPw('അഡ്മിൻ പാസ്‌വേഡ് ഉണ്ടാക്കുക (കുറഞ്ഞത് 4 അക്ഷരം)',true);if(!a)return false;
+    root.auth={salt:uid()+uid()};root.auth.admin=await hash('admin|'+a);save();auth={lvl:'admin'};return true}
+  const pw=await askPw('തിരുത്താനുള്ള പാസ്‌വേഡ് നൽകുക');if(!pw)return false;
+  const w=await who(pw);if(!w){alert('പാസ്‌വേഡ് തെറ്റാണ്');return false}
+  auth=w==='admin'?{lvl:'admin'}:{lvl:'user',id:w};
+  if(w!=='admin')path=[...nodes_to(w)];
+  return true}
+function nodes_to(id,n=root,p=[]){if(n.id===id)return p;for(const c of n.children){const r=nodes_to(id,c,[...p,c.id]);if(r)return r}return null}
+function nodes(){const out=[root];let n=root;for(const id of path){n=n.children.find(c=>c.id===id);if(!n)break;out.push(n)}return out}
+function count(n){return n.children.reduce((a,c)=>a+1+count(c),0)}
+const go=p=>{path=p;location.hash=p.join('/')};
+addEventListener('hashchange',()=>{path=location.hash.slice(1).split('/').filter(Boolean);render()});
+
+function avatar(p,cls=''){
+  const ini=esc((p.name||'?').trim().charAt(0));
+  return p.photo?`<img class="av ${cls}" src="${esc(p.photo)}" alt="${esc(p.name)}">`:`<div class="av ${cls}" aria-hidden="true">${ini}</div>`;
+}
+function link(type,v){
+  if(!v)return'';
+  const t=v.trim();
+  if(type==='ph')return`<a href="tel:${esc(t.replace(/\s/g,''))}">${esc(t)}</a>`;
+  if(type==='em')return`<a href="mailto:${esc(t)}">${esc(t)}</a>`;
+  const base={fb:'https://facebook.com/',ig:'https://instagram.com/',wa:'https://wa.me/'}[type];
+  const h=/^https?:/i.test(t)?t:base+(type==='wa'?t.replace(/\D/g,''):t.replace(/^@/,''));
+  return`<a href="${esc(h)}" target="_blank" rel="noopener">${esc(t)}</a>`;
+}
+function card(p,isSpouse){
+  const rows=[['ഫോൺ',link('ph',p.phone)],['ഇമെയിൽ',link('em',p.email)],['വിലാസം',esc(p.address)],['വാട്സാപ്പ്',link('wa',p.whatsapp)],['ഫേസ്ബുക്ക്',link('fb',p.facebook)],['ഇൻസ്റ്റഗ്രാം',link('ig',p.instagram)],['കുറിപ്പ്',esc(p.notes)]].filter(r=>r[1]);
+  const yrs=[p.born,p.died].filter(Boolean).join(' – ');
+  return`<article class="card">${avatar(p)}<h2>${esc(p.name)}</h2><div class="rel">${esc(p.rel)}</div>${yrs?`<div class="yrs">${esc(yrs)}</div>`:''}
+  ${rows.length?`<ul class="info">${rows.map(r=>`<li><b>${r[0]}</b><span>${r[1]}</span></li>`).join('')}</ul>`:`<div class="empty">വിവരങ്ങൾ ചേർത്തിട്ടില്ല</div>`}
+  ${ce?`<div class="row-add"><button data-edit="${isSpouse?'sp':'me'}">വിവരങ്ങൾ ചേർക്കുക / മാറ്റുക</button></div>`:''}</article>`;
+}
+
+function render(){
+  const ns=nodes();path=ns.slice(1).map(n=>n.id);
+  const cur=ns[ns.length-1];ce=can(ns);
+  $('#crumbs').innerHTML=ns.map((n,i)=>`${i?'<span>›</span>':''}<button class="${i===ns.length-1?'cur':''}" data-go="${i}">${esc(n.name)}</button>`).join('');
+  const pair=cur.spouse||ce;
+  let h=`<section class="couple${pair?' pair':''}">${card(cur,false)}${pair?'<div class="orn">❦</div>':''}${cur.spouse?card(cur.spouse,true):(ce?`<article class="card"><div class="empty">ജീവിതപങ്കാളി ഇല്ല</div><div class="row-add"><button data-edit="addsp">പങ്കാളിയെ ചേർക്കുക</button></div></article>`:'')}</section>`;
+  h+=`<section class="sec"><div class="stem"></div><h3>${cur.children.length?`${genLabel(path.length)} (${cur.children.length})`:genLabel(path.length)}</h3>`;
+  h+=cur.children.length?`<p class="hint">ഒരാളെ തൊട്ടാൽ അവരുടെ കുടുംബം കാണാം</p>`:`<p class="hint">${ce?'താഴെയുള്ള + അമർത്തി കുട്ടികളെ ചേർക്കാം':'ഇവിടെ കൂടുതൽ അംഗങ്ങളെ ചേർത്തിട്ടില്ല'}</p>`;
+  h+=`<div class="kids">${cur.children.map(c=>`<button class="kid" data-kid="${c.id}">${ce?`<span class="pen" data-pen="${c.id}">തിരുത്തുക</span>`:''}${avatar(c)}<span class="n">${esc(c.name)}</span><span class="s">${count(c)?count(c)+' പിൻഗാമികൾ':(c.spouse?'കുടുംബം':'')}</span></button>`).join('')}
+  ${ce?`<button class="kid add" data-addkid><div class="av">+</div><span class="n">കുട്ടിയെ ചേർക്കുക</span></button>`:''}</div></section>`;
+  $('#main').innerHTML=(edit?(!ce?'<p class="banner">ഈ പേജ് തിരുത്താൻ നിങ്ങളുടെ പാസ്‌വേഡിന് അനുമതിയില്ല. അനുവദിച്ച അംഗത്തിന്റെ പേജിലേക്ക് പോകുക.</p>':'<p class="banner">തിരുത്തൽ മോഡ്: ഈ പേജിൽ പങ്കാളിയെയും കുട്ടികളെയും ചേർക്കാം. ചേർത്ത കുട്ടിയെ തൊട്ട് അടുത്ത തലമുറയും ചേർക്കാം.</p>'):'')+h;
+  $('#bEdit').classList.toggle('on',edit);$('#bEdit').textContent=edit?'പൂട്ടുക':'തിരുത്തുക';
+  $('#bExp').hidden=!edit;['#bImp','#bRst','#bPw'].forEach(s=>$(s).hidden=!(edit&&auth&&auth.lvl==='admin'));
+  scrollTo({top:0});
+}
+
+/* ---- നാവിഗേഷൻ ---- */
+$('#crumbs').onclick=e=>{const b=e.target.closest('[data-go]');if(b)go(nodes().slice(1,+b.dataset.go+1).map(n=>n.id))};
+$('#main').onclick=e=>{
+  const cur=nodes().pop();
+  const pen=e.target.closest('[data-pen]');
+  if(pen){e.stopPropagation();return openForm(cur.children.find(c=>c.id===pen.dataset.pen),()=>{cur.children=cur.children.filter(c=>c.id!==pen.dataset.pen)})}
+  const k=e.target.closest('[data-kid]');if(k)return go([...path,k.dataset.kid]);
+  if(e.target.closest('[data-addkid]')){const c=P('പുതിയ അംഗം',genLabel(path.length).replace('ൾ','ൾ'));cur.children.push(c);save();return openForm(c,()=>{cur.children=cur.children.filter(x=>x!==c)},true)}
+  const ed=e.target.closest('[data-edit]');if(!ed)return;
+  const t=ed.dataset.edit;
+  if(t==='me')openForm(cur,null);
+  if(t==='sp')openForm(cur.spouse,()=>{cur.spouse=null});
+  if(t==='addsp'){cur.spouse=P('പങ്കാളി','ഭാര്യ/ഭർത്താവ്');save();openForm(cur.spouse,()=>{cur.spouse=null},true)}
 };
 
-/* ============ DEFAULT DATA (sample 8 children) ============ */
-const defaultData = {
-  id: 'root',
-  name: 'മുഹമ്മദ് ഹാജി',
-  relation: 'മുത്തച്ഛൻ (Grandfather)',
-  gender: 'male',
-  photo: null,
-  phone: '+91 98470 00001',
-  email: 'muhammad.haji@example.com',
-  social: { facebook: 'facebook.com/muhammadhaji', instagram: '@mhaji', whatsapp: '9847000001' },
-  address: 'ഹാജി മൻസിൽ, കോഴിക്കോട്, കേരളം',
-  spouse: {
-    name: 'ഫാത്തിമ ബീവി',
-    relation: 'മുത്തശ്ശി (Grandmother)',
-    gender: 'female',
-    photo: null,
-    phone: '+91 98470 00002',
-    email: 'fathima.beevi@example.com',
-    social: { facebook: '', instagram: '', whatsapp: '' },
-    address: 'ഹാജി മൻസിൽ, കോഴിക്കോട്, കേരളം'
-  },
-  children: [
-    { id: 'c1', name: 'അഹമ്മദ് ഹാജി', relation: 'മകൻ', gender: 'male', photo: null,
-      phone: '+91 98470 11111', email: 'ahmed@example.com',
-      social: { facebook: 'fb.com/ahmed', instagram: '@ahmed', whatsapp: '9847011111' },
-      address: 'ദുബായ്, UAE',
-      spouse: { name: 'സൽമ', relation: 'ഭാര്യ', photo: null, phone: '', email: '', social: {}, address: 'ദുബായ്' },
-      children: [
-        { id: 'c1-1', name: 'റഷീദ് അഹമ്മദ്', relation: 'മകൻ', gender: 'male', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] },
-        { id: 'c1-2', name: 'ഫർസാന അഹമ്മദ്', relation: 'മകൾ', gender: 'female', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] }
-      ]},
-    { id: 'c2', name: 'ഫാത്തിമ സുഹറ', relation: 'മകൾ', gender: 'female', photo: null,
-      phone: '+91 98470 22222', email: 'suhara@example.com',
-      social: { facebook: '', instagram: '@suhara', whatsapp: '9847022222' },
-      address: 'തൃശ്ശൂർ, കേരളം',
-      spouse: { name: 'യൂസഫ്', relation: 'ഭർത്താവ്', photo: null, phone: '', email: '', social: {}, address: 'തൃശ്ശൂർ' },
-      children: [
-        { id: 'c2-1', name: 'ഹാരിസ് യൂസഫ്', relation: 'മകൻ', gender: 'male', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] }
-      ]},
-    { id: 'c3', name: 'ആയിഷ ബീവി', relation: 'മകൾ', gender: 'female', photo: null,
-      phone: '', email: '', social: {}, address: 'കോഴിക്കോട്',
-      spouse: null, children: [] },
-    { id: 'c4', name: 'ഉമർ ഹാജി', relation: 'മകൻ', gender: 'male', photo: null,
-      phone: '+91 98470 44444', email: 'umar@example.com',
-      social: { facebook: '', instagram: '', whatsapp: '9847044444' },
-      address: 'മസ്കറ്റ്, ഒമാൻ',
-      spouse: { name: 'ആമിന', relation: 'ഭാര്യ', photo: null, phone: '', email: '', social: {}, address: 'മസ്കറ്റ്' },
-      children: [
-        { id: 'c4-1', name: 'സൽമാൻ ഉമർ', relation: 'മകൻ', gender: 'male', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] },
-        { id: 'c4-2', name: 'റിഫ ഉമർ', relation: 'മകൾ', gender: 'female', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] },
-        { id: 'c4-3', name: 'സിഹാന ഉമർ', relation: 'മകൾ', gender: 'female', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] }
-      ]},
-    { id: 'c5', name: 'സൈനബ', relation: 'മകൾ', gender: 'female', photo: null,
-      phone: '', email: '', social: {}, address: 'മലപ്പുറം',
-      spouse: null, children: [] },
-    { id: 'c6', name: 'അലി ഹാജി', relation: 'മകൻ', gender: 'male', photo: null,
-      phone: '+91 98470 66666', email: 'ali@example.com',
-      social: { facebook: '', instagram: '', whatsapp: '' },
-      address: 'ബെംഗളൂരു',
-      spouse: null, children: [] },
-    { id: 'c7', name: 'ഖദീജ', relation: 'മകൾ', gender: 'female', photo: null,
-      phone: '', email: '', social: {}, address: 'കണ്ണൂർ',
-      spouse: null, children: [] },
-    { id: 'c8', name: 'ഇബ്രാഹിം ഹാജി', relation: 'മകൻ', gender: 'male', photo: null,
-      phone: '+91 98470 88888', email: 'ibrahim@example.com',
-      social: { facebook: 'fb.com/ibrahim', instagram: '@ibrahim', whatsapp: '9847088888' },
-      address: 'ഷാർജ, UAE',
-      spouse: { name: 'റംല', relation: 'ഭാര്യ', photo: null, phone: '', email: '', social: {}, address: 'ഷാർജ' },
-      children: [
-        { id: 'c8-1', name: 'അഫ്നാൻ ഇബ്രാഹിം', relation: 'മകൻ', gender: 'male', photo: null, phone: '', email: '', social: {}, address: '', spouse: null, children: [] }
-      ]}
-  ]
-};
-
-/* ============ STATE & STORAGE ============ */
-const STORAGE_KEY = 'familyTree_v1';
-let state = { data: loadData(), path: ['root'] };
-let editingContext = null;
-let pendingPhoto = undefined;
-
-function loadData() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return JSON.parse(saved);
-  } catch(e) {}
-  return JSON.parse(JSON.stringify(defaultData));
-}
-function saveData() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data)); }
-  catch(e) { alert('സേവ് ചെയ്യാൻ പറ്റിയില്ല. ഫോട്ടോ വലുതായിരിക്കാം.'); }
-}
-
-/* ============ HELPERS ============ */
-function escapeHtml(s) {
-  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function getInitials(name) {
-  const parts = (name || '?').trim().split(/\s+/);
-  return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
-}
-function avatarHTML(person) {
-  const size = 140;
-  if (person.photo) return `<img src="${person.photo}" alt="${escapeHtml(person.name)}">`;
-  const initials = getInitials(person.name);
-  const female = person.gender === 'female' || /മകൾ|അമ്മ|ഭാര്യ|സ്ത്രീ/i.test(person.relation||'');
-  const color = female ? '#4a2340' : '#1a2540';
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${color}"/><stop offset="1" stop-color="#0a0a14"/></linearGradient></defs><rect width="100" height="100" fill="url(#g)"/><text x="50" y="63" font-family="Georgia,serif" font-size="34" fill="#d4af37" text-anchor="middle">${initials}</text></svg>`;
-  return `<img src="data:image/svg+xml,${encodeURIComponent(svg)}" alt="${escapeHtml(person.name)}">`;
-}
-function genId() { return 'n_' + Date.now() + '_' + Math.random().toString(36).slice(2,7); }
-function findNode(path) {
-  let node = state.data;
-  for (let i = 1; i < path.length; i++) {
-    if (!node.children) return node;
-    const c = node.children.find(x => x.id === path[i]);
-    if (!c) return node;
-    node = c;
-  }
-  return node;
-}
-
-/* ============ NAVIGATION ============ */
-function navigateTo(index) {
-  state.path = state.path.slice(0, index + 1);
-  render();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-function navigateToChild(childId) {
-  state.path.push(childId);
-  render();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-/* ============ RENDER ============ */
-function renderBreadcrumb() {
-  const paths = state.path.map((id, i) => {
-    let node = state.data;
-    for (let j = 1; j <= i; j++) node = node.children?.find(c => c.id === state.path[j]) || node;
-    return { name: node.name, index: i };
-  });
-  const crumbs = paths.map((p, i) => {
-    const label = i === 0 ? '🏠 ഹോം' : escapeHtml(p.name);
-    if (i === paths.length - 1) return `<span class="crumb current">${label}</span>`;
-    return `<a href="#" class="crumb" onclick="navigateTo(${i});return false;">${label}</a>`;
-  });
-  return `<span class="gen-badge">GEN ${state.path.length}</span><span class="sep">|</span>` + crumbs.join('<span class="sep">›</span>');
-}
-
-function renderContacts(p) {
-  const items = [];
-  if (p.phone) items.push(`<div class="contact-item">${ICONS.phone}<span>${escapeHtml(p.phone)}</span></div>`);
-  if (p.email) items.push(`<div class="contact-item">${ICONS.email}<span>${escapeHtml(p.email)}</span></div>`);
-  if (p.social?.facebook) items.push(`<div class="contact-item">${ICONS.facebook}<span>${escapeHtml(p.social.facebook)}</span></div>`);
-  if (p.social?.instagram) items.push(`<div class="contact-item">${ICONS.instagram}<span>${escapeHtml(p.social.instagram)}</span></div>`);
-  if (p.social?.whatsapp) items.push(`<div class="contact-item">${ICONS.whatsapp}<span>${escapeHtml(p.social.whatsapp)}</span></div>`);
-  if (p.address) items.push(`<div class="contact-item">${ICONS.location}<span>${escapeHtml(p.address)}</span></div>`);
-  if (!items.length) return '<div class="contact-list"><div class="contact-item empty">വിവരങ്ങൾ ലഭ്യമല്ല</div></div>';
-  return `<div class="contact-list">${items.join('')}</div>`;
-}
-
-function renderPersonCard(person, editTarget) {
-  return `
-    <div class="person-card">
-      <button class="btn btn-edit" onclick="openEditModal('${editTarget}')">✎ Edit</button>
-      <div class="avatar-wrap">${avatarHTML(person)}</div>
-      <h2>${escapeHtml(person.name)}</h2>
-      <div class="relation">${escapeHtml(person.relation || '')}</div>
-      ${renderContacts(person)}
-    </div>`;
-}
-
-function renderChildCard(child) {
-  const cnt = child.children?.length || 0;
-  return `
-    <div class="child-card" onclick="navigateToChild('${child.id}')">
-      <div class="avatar-wrap">${avatarHTML(child)}</div>
-      <h3>${escapeHtml(child.name)}</h3>
-      <div class="relation">${escapeHtml(child.relation || '')}</div>
-      ${child.spouse ? `<div class="mini-info">${ICONS.spouse} ${escapeHtml(child.spouse.name)}</div>` : ''}
-      ${cnt ? `<div class="family-count">${cnt} മക്കൾ</div>` : `<div class="family-count" style="opacity:.5">മക്കളില്ല</div>`}
-    </div>`;
-}
-
-function render() {
-  const current = findNode(state.path);
-  const spouse = current.spouse;
-  const spouseDisplay = spouse ? { ...spouse, relation: spouse.relation || (current.gender === 'female' ? 'ഭർത്താവ്' : 'ഭാര്യ') } : null;
-  const app = document.getElementById('app');
-
-  app.innerHTML = `
-    <header class="site-header">
-      <h1>കുടുംബ വൃക്ഷം</h1>
-      <div class="subtitle">Family Heritage Tree</div>
-    </header>
-    <nav class="breadcrumb">${renderBreadcrumb()}</nav>
-    <main>
-      <section class="person-section">
-        ${renderPersonCard(current, 'person')}
-        ${spouseDisplay ? renderPersonCard(spouseDisplay, 'spouse') :
-          `<div class="person-card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px">
-            <div style="color:#888">ഇണയെ ചേർത്തിട്ടില്ല</div>
-            <button class="btn btn-primary" onclick="openEditModal('spouse')">+ ഇണയെ ചേർക്കുക</button>
-           </div>`}
-      </section>
-      <section class="children-section">
-        <div class="section-header">
-          <h2>മക്കൾ <span class="count">${current.children?.length || 0}</span></h2>
-          <button class="btn btn-primary" onclick="openEditModal('child-new')">+ പുതിയത് ചേർക്കുക</button>
-        </div>
-        ${current.children?.length
-          ? `<div class="children-grid">${current.children.map(renderChildCard).join('')}</div>`
-          : `<div class="empty-state">മക്കളെ ഇതുവരെ ചേർത്തിട്ടില്ല. മുകളിലുള്ള ബട്ടൺ ഉപയോഗിക്കുക.</div>`}
-      </section>
-    </main>
-    <footer class="site-footer">
-      <button class="btn" onclick="exportData()">⬇ Export JSON</button>
-      <button class="btn" onclick="document.getElementById('importInput').click()">⬆ Import JSON</button>
-      <button class="btn" onclick="resetData()">↺ Reset</button>
-    </footer>`;
-}
-
-/* ============ MODALS ============ */
-function openEditModal(target) {
-  const current = findNode(state.path);
-  let person, title, mode = target;
-  if (target === 'person') {
-    person = current; title = 'വ്യക്തി വിവരങ്ങൾ';
-  } else if (target === 'spouse') {
-    person = current.spouse || { name: '', relation: current.gender === 'female' ? 'ഭർത്താവ്' : 'ഭാര്യ', photo: null, phone: '', email: '', social: {}, address: '' };
-    title = 'ഇണയുടെ വിവരങ്ങൾ';
-  } else if (target === 'child-new') {
-    person = { name: '', relation: 'മകൻ', photo: null, phone: '', email: '', social: {}, address: '' };
-    title = 'പുതിയ കുടുംബാംഗം';
-  }
-  editingContext = { target, mode };
-  pendingPhoto = undefined;
-  renderModal(person, title);
-}
-
-function renderModal(person, title) {
-  document.getElementById('modal-root').innerHTML = `
-    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
-      <div class="modal">
-        <h3>${title}</h3>
-        <div class="photo-upload">
-          <img id="photoPreview" src="${person.photo || avatarHTML(person).match(/src="([^"]+)"/)[1]}">
-          <div>
-            <label class="btn" style="cursor:pointer">
-              📷 ഫോട്ടോ മാറ്റുക
-              <input type="file" accept="image/*" style="display:none" onchange="handlePhotoChange(event)">
-            </label>
-            <div style="font-size:11px;color:#666;margin-top:6px">JPG/PNG — ചെറിയ ഫോട്ടോ (500KB-ൽ താഴെ) നല്ലത്</div>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>പേര് *</label><input id="f_name" value="${escapeHtml(person.name||'')}"></div>
-          <div class="form-group"><label>ബന്ധം</label><input id="f_relation" value="${escapeHtml(person.relation||'')}" placeholder="മകൻ / മകൾ / ഭാര്യ"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>ഫോൺ</label><input id="f_phone" value="${escapeHtml(person.phone||'')}"></div>
-          <div class="form-group"><label>ഇമെയിൽ</label><input id="f_email" value="${escapeHtml(person.email||'')}"></div>
-        </div>
-        <div class="form-group"><label>വിലാസം</label><textarea id="f_address" rows="2">${escapeHtml(person.address||'')}</textarea></div>
-        <div class="form-row">
-          <div class="form-group"><label>Facebook</label><input id="f_fb" value="${escapeHtml(person.social?.facebook||'')}"></div>
-          <div class="form-group"><label>Instagram</label><input id="f_ig" value="${escapeHtml(person.social?.instagram||'')}"></div>
-        </div>
-        <div class="form-group"><label>WhatsApp</label><input id="f_wa" value="${escapeHtml(person.social?.whatsapp||'')}"></div>
-        <div class="modal-actions">
-          <button class="btn" onclick="closeModal()">റദ്ദാക്കുക</button>
-          <button class="btn btn-primary" onclick="saveModal()">സേവ് ചെയ്യുക</button>
-        </div>
-      </div>
-    </div>`;
-  setTimeout(() => document.getElementById('f_name')?.focus(), 100);
-}
-
-function handlePhotoChange(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    pendingPhoto = ev.target.result;
-    document.getElementById('photoPreview').src = pendingPhoto;
+/* ---- എഡിറ്റ് ഫോം ---- */
+const F=[['name','പേര്'],['rel','ബന്ധം'],['born','ജനനവർഷം'],['died','മരണവർഷം'],['phone','ഫോൺ നമ്പർ'],['email','ഇമെയിൽ'],['whatsapp','വാട്സാപ്പ് നമ്പർ'],['facebook','ഫേസ്ബുക്ക് (ലിങ്ക്/ഐഡി)'],['instagram','ഇൻസ്റ്റഗ്രാം (ലിങ്ക്/ഐഡി)']];
+function openForm(p,del,isNew){
+  if(!p)return;
+  const pwf=auth&&auth.lvl==='admin'&&all().includes(p);
+  const f=k=>`<label>${F.find(x=>x[0]===k)[1]}<input name="${k}" value="${esc(p[k])}"></label>`;
+  $('#frm').innerHTML=`<h3>വിവരങ്ങൾ</h3>
+  <div class="pv">${avatar(p)}<div style="flex:1"><label style="margin:0">ഫോട്ടോ (ഫയൽ)<input type="file" id="ph" accept="image/*"></label></div></div>
+  <label>ഫോട്ടോ ലിങ്ക് (ഉദാ: photos/ammu.jpg)<input name="photo" value="${esc(p.photo&&p.photo.startsWith('data:')?'':p.photo)}"></label>
+  ${f('name')}${f('rel')}<div class="two">${f('born')}${f('died')}</div>
+  <div class="two">${f('phone')}${f('whatsapp')}</div>${f('email')}
+  <label>വിലാസം<textarea name="address" rows="2">${esc(p.address)}</textarea></label>
+  <div class="two">${f('facebook')}${f('instagram')}</div>
+  <label>കുറിപ്പ്<textarea name="notes" rows="2">${esc(p.notes)}</textarea></label>
+  ${pwf?`<label>ഈ അംഗത്തിനുള്ള എഡിറ്റ് പാസ്‌വേഡ് ${p.pw?'(സെറ്റ് ആണ്; മാറ്റാൻ പുതിയത് നൽകുക)':'(ഇവരുടെ കുടുംബം തിരുത്താൻ)'}<input name="newpw" autocomplete="off"></label>${p.pw?'<label><input type="checkbox" name="clearpw" style="width:auto"> പാസ്‌വേഡ് നീക്കം ചെയ്യുക</label>':''}`:''}
+  <div class="acts">${del?'<button type="button" class="danger" id="dDel">ഇല്ലാതാക്കുക</button>':''}<button type="button" id="dCan">റദ്ദാക്കുക</button><button type="button" class="primary" id="dOk">സേവ് ചെയ്യുക</button></div>`;
+  let photo=p.photo;
+  $('#ph').onchange=async e=>{const f=e.target.files[0];if(!f)return;photo=await shrink(f);$('.pv').firstElementChild.outerHTML=avatar({...p,photo})};
+  $('#dCan').onclick=()=>{if(isNew&&del)del();save();$('#dlg').close();render()};
+  $('#dOk').onclick=async()=>{
+    const fd=new FormData($('#frm'));
+    for(const [k,v] of fd.entries()) if(!['photo','newpw','clearpw'].includes(k))p[k]=v.trim();
+    const np=(fd.get('newpw')||'').trim();
+    if(np){if(np.length<4)return alert('പാസ്‌വേഡ് കുറഞ്ഞത് 4 അക്ഷരം വേണം');const o=await who(np);if(o&&o!==p.id)return alert('ഈ പാസ്‌വേഡ് മറ്റൊരാൾക്ക് നൽകിയിട്ടുണ്ട്. വേറെ തിരഞ്ഞെടുക്കുക.');p.pw=await hash(p.id+'|'+np)}
+    if(fd.get('clearpw'))p.pw='';
+    const url=(fd.get('photo')||'').trim();
+    p.photo=url||(photo&&photo.startsWith('data:')?photo:'');
+    save();$('#dlg').close();render();
   };
-  reader.readAsDataURL(file);
+  if(del&&!isNew)$('#dDel').onclick=()=>{if(confirm('"'+p.name+'" എന്നയാളെ (പിൻഗാമികളോടൊപ്പം) ഇല്ലാതാക്കട്ടെ?')){del();save();$('#dlg').close();render()}};
+  if(del&&isNew)$('#dDel').onclick=()=>{del();save();$('#dlg').close();render()};
+  $('#dlg').showModal();
 }
+function shrink(file){return new Promise(res=>{
+  const im=new Image(),u=URL.createObjectURL(file);
+  im.onload=()=>{const s=Math.min(im.width,im.height),S=320,c=document.createElement('canvas');c.width=c.height=S;
+    c.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,S,S);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.8))};
+  im.src=u})}
 
-function saveModal() {
-  const current = findNode(state.path);
-  const data = {
-    name: document.getElementById('f_name').value.trim(),
-    relation: document.getElementById('f_relation').value.trim(),
-    phone: document.getElementById('f_phone').value.trim(),
-    email: document.getElementById('f_email').value.trim(),
-    address: document.getElementById('f_address').value.trim(),
-    social: {
-      facebook: document.getElementById('f_fb').value.trim(),
-      instagram: document.getElementById('f_ig').value.trim(),
-      whatsapp: document.getElementById('f_wa').value.trim()
-    }
-  };
-  if (!data.name) { alert('പേര് നിർബന്ധമാണ്'); return; }
-  if (pendingPhoto !== undefined) data.photo = pendingPhoto;
+/* ---- ടൂൾബാർ ---- */
+$('#frm').onsubmit=e=>{e.preventDefault();const b=$('#dOk');if(b)b.click()};
+$('#bEdit').onclick=async()=>{if(edit){edit=false;auth=null;return render()}if(await login()){edit=true;go(path);render()}};
+$('#bPw').onclick=async()=>{const a=await askPw('പുതിയ അഡ്മിൻ പാസ്‌വേഡ്',true);if(!a)return;const o=await who(a);if(o&&o!=='admin')return alert('ഈ പാസ്‌വേഡ് ഒരു അംഗത്തിന് നൽകിയിട്ടുണ്ട്');root.auth.admin=await hash('admin|'+a);save();alert('അഡ്മിൻ പാസ്‌വേഡ് മാറ്റി')};
+$('#bExp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(root,null,1)],{type:'application/json'}));a.download='data.json';a.click()};
+$('#bImp').onclick=()=>$('#fImp').click();
+$('#fImp').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{root=JSON.parse(await f.text());save();go([])}catch(x){alert('ഫയൽ വായിക്കാൻ കഴിഞ്ഞില്ല. സാധുവായ data.json തിരഞ്ഞെടുക്കുക.')}e.target.value=''};
+$('#bRst').onclick=()=>{if(confirm('ഈ ബ്രൗസറിലെ എല്ലാ മാറ്റങ്ങളും കളഞ്ഞ് ആദ്യത്തെ ഡാറ്റയിലേക്ക് മടങ്ങട്ടെ?')){localStorage.removeItem(KEY);location.reload()}};
 
-  if (editingContext.target === 'person') {
-    Object.assign(current, data);
-    current.gender = /മകൾ|അമ്മ|ഭാര്യ|സ്ത്രീ/i.test(data.relation) ? 'female' : (current.gender || 'male');
-  } else if (editingContext.target === 'spouse') {
-    if (!current.spouse) current.spouse = {};
-    Object.assign(current.spouse, data);
-    current.spouse.gender = 'female';
-  } else if (editingContext.target === 'child-new') {
-    if (!current.children) current.children = [];
-    current.children.push({
-      id: genId(), ...data,
-      photo: data.photo || null,
-      gender: /മകൾ|അമ്മ|ഭാര്യ|സ്ത്രീ/i.test(data.relation) ? 'female' : 'male',
-      spouse: null, children: []
-    });
-  }
-  saveData(); closeModal(); render();
-}
-function closeModal() { document.getElementById('modal-root').innerHTML = ''; editingContext = null; pendingPhoto = undefined; }
-
-/* ============ EXPORT / IMPORT / RESET ============ */
-function exportData() {
-  const blob = new Blob([JSON.stringify(state.data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'family-tree-' + new Date().toISOString().slice(0,10) + '.json';
-  a.click(); URL.revokeObjectURL(url);
-}
-function importData(e) {
-  const file = e.target.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    try {
-      const parsed = JSON.parse(ev.target.result);
-      if (!parsed.name) throw new Error('Invalid format');
-      state.data = parsed; state.path = ['root'];
-      saveData(); render();
-      alert('✅ ഇംപോർട്ട് വിജയിച്ചു');
-    } catch (err) { alert('❌ ഇംപോർട്ട് പരാജയപ്പെട്ടു: ' + err.message); }
-  };
-  reader.readAsText(file); e.target.value = '';
-}
-function resetData() {
-  if (!confirm('എല്ലാ മാറ്റങ്ങളും നഷ്ടമാകും. തുടരണോ?')) return;
-  state.data = JSON.parse(JSON.stringify(defaultData));
-  state.path = ['root'];
-  saveData(); render();
-}
-
-/* ============ INIT ============ */
-document.getElementById('importInput').addEventListener('change', importData);
-render();
+load().then(()=>{path=location.hash.slice(1).split('/').filter(Boolean);render()});
 </script>
 </body>
 </html>
