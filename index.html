@@ -83,16 +83,15 @@ footer{margin-top:56px;color:var(--mute);font-size:.8rem;text-align:center}
     <div><h1>കുടുംബ വൃക്ഷം</h1><p>തലമുറകളിലൂടെ ഒരു യാത്ര</p></div>
     <div class="tools">
       <button id="bEdit">തിരുത്തുക</button>
-      <button id="bExp" hidden>സേവ് ഫയൽ (JSON)</button>
+      <button id="bExp" hidden>ബാക്കപ്പ് (JSON)</button>
       <button id="bImp" hidden>ഇമ്പോർട്ട്</button>
-      <button id="bRst" hidden class="danger">റീസെറ്റ്</button>
       <button id="bPw" hidden>അഡ്മിൻ പാസ്‌വേഡ്</button>
       <input type="file" id="fImp" accept="application/json" hidden>
     </div>
   </header>
   <nav class="crumbs" id="crumbs" aria-label="കുടുംബ പാത"></nav>
   <main id="main"></main>
-  <footer>ഡാറ്റ ഈ ബ്രൗസറിൽ സൂക്ഷിക്കും. എല്ലാവർക്കും കാണാൻ "സേവ് ഫയൽ" ചെയ്ത് data.json ആയി GitHub-ൽ അപ്‌ലോഡ് ചെയ്യുക.</footer>
+  <footer>മാറ്റങ്ങൾ ക്ലൗഡിൽ സൂക്ഷിക്കും. ആർ തിരുത്തിയാലും എല്ലാവർക്കും തത്സമയം കാണാം.</footer>
 </div>
 
 <dialog id="dlg"><form method="dialog" id="frm"></form></dialog>
@@ -119,22 +118,28 @@ let root,path=[],edit=false,auth=null,ce=false;
 const genLabel=n=>n<1?'മക്കൾ':n<2?'കൊച്ചുമക്കൾ':(n+2)+'-ാം തലമുറ';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(root))}catch(e){alert('സ്ഥലം തികയുന്നില്ല. ചെറിയ ഫോട്ടോ ഉപയോഗിക്കുക അല്ലെങ്കിൽ സേവ് ഫയൽ ചെയ്യുക.')}};
+const save=()=>{};
 
+const SB_URL='https://bqlngeljjqumeyfwenzn.supabase.co',SB_KEY='sb_publishable_Mbq8gZDjtQ01qJ-AaHQgLw_CeyvR_Km';
+const HD={apikey:SB_KEY,'Content-Type':'application/json'};
+let PW='',PWSET=new Set(),ver=null,tick=0;
+async function rpc(fn,args){const r=await fetch(`${SB_URL}/rest/v1/rpc/${fn}`,{method:'POST',headers:HD,body:JSON.stringify(args||{})});const t=await r.text();
+  if(!r.ok){let m=t;try{m=JSON.parse(t).message||t}catch(e){}throw new Error(m)}return t?JSON.parse(t):null}
+async function fetchRows(){const r=await fetch(`${SB_URL}/rest/v1/people?select=id,parent_id,sort,data&order=sort`,{headers:HD});if(!r.ok)throw new Error(await r.text());return r.json()}
+function build(rows){const m={};rows.forEach(r=>m[r.id]={...r.data,id:r.id,children:[]});
+  rows.slice().sort((a,b)=>a.sort-b.sort).forEach(r=>{if(r.parent_id&&m[r.parent_id])m[r.parent_id].children.push(m[r.id])});return m.root||null}
+const errMsg=e=>{const m=e.message||String(e);return m.includes('not allowed')?'ഈ മാറ്റം വരുത്താൻ അനുമതിയില്ല':m.includes('wrong password')?'പാസ്‌വേഡ് തെറ്റാണ്':m.includes('already used')?'ഈ പാസ്‌വേഡ് മറ്റൊരാൾക്ക് നൽകിയിട്ടുണ്ട്':m}
 async function load(){
-  try{const s=localStorage.getItem(KEY);if(s){root=JSON.parse(s);return}}catch(e){}
-  try{const r=await fetch('data.json',{cache:'no-cache'});if(r.ok){root=await r.json();return}}catch(e){}
-  root=sample();
-}
+  try{root=build(await fetchRows());if(!root)throw new Error('ഡാറ്റ ഒന്നും ഇല്ല');ver=await rpc('tree_version').catch(()=>null);return true}
+  catch(e){$('#main').innerHTML='<p class="banner">ഡാറ്റ ലഭിച്ചില്ല. Supabase-ൽ supabase-setup.sql Run ചെയ്തിട്ടുണ്ടോ എന്ന് പരിശോധിക്കുക.<br><small>'+esc(e.message)+'</small></p>';return false}}
+async function refresh(){const r=build(await fetchRows());if(r)root=r;ver=await rpc('tree_version').catch(()=>null);render(true)}
+async function poll(){if(document.hidden||$('#dlg').open||$('#pwd').open)return;
+  try{const v=await rpc('tree_version');if(v!==ver)await refresh()}catch(e){if(++tick%5===0)try{await refresh()}catch(x){}}}
+async function persist(o,parent){const {id,children,...data}=o;
+  const k=parent?parent.children.indexOf(o):0,i=k>=0?k:parent.children.length;
+  await rpc('save_person',{p_pw:PW,p_id:id,p_parent:parent?parent.id:null,p_data:data,p_sort:i})}
 const all=(n=root,o=[])=>{o.push(n);n.children.forEach(c=>all(c,o));return o};
 const can=ns=>edit&&auth&&(auth.lvl==='admin'||ns.some(n=>n.id===auth.id));
-async function hash(x){const b=new TextEncoder().encode(root.auth.salt+'|'+x);
-  if(window.crypto&&crypto.subtle){const d=await crypto.subtle.digest('SHA-256',b);return[...new Uint8Array(d)].map(v=>v.toString(16).padStart(2,'0')).join('')}
-  let h=5381;for(const c of b)h=(h*33^c)>>>0;return'w'+h}
-async function who(pw){
-  if(root.auth.admin===await hash('admin|'+pw))return'admin';
-  for(const n of all())if(n.pw&&n.pw===await hash(n.id+'|'+pw))return n.id;
-  return null}
 function askPw(title,confirm){return new Promise(res=>{
   const d=$('#pwd'),i=$('#pi'),i2=$('#pi2'),e=$('#pe');
   $('#pt').textContent=title;i.value=i2.value='';i2.hidden=!confirm;e.textContent='';
@@ -146,13 +151,11 @@ function askPw(title,confirm){return new Promise(res=>{
     if(v)done(v)};
   d.showModal();i.focus()})}
 async function login(){
-  if(!root.auth){
-    const a=await askPw('അഡ്മിൻ പാസ്‌വേഡ് ഉണ്ടാക്കുക (കുറഞ്ഞത് 4 അക്ഷരം)',true);if(!a)return false;
-    root.auth={salt:uid()+uid()};root.auth.admin=await hash('admin|'+a);save();auth={lvl:'admin'};return true}
   const pw=await askPw('തിരുത്താനുള്ള പാസ്‌വേഡ് നൽകുക');if(!pw)return false;
-  const w=await who(pw);if(!w){alert('പാസ്‌വേഡ് തെറ്റാണ്');return false}
-  auth=w==='admin'?{lvl:'admin'}:{lvl:'user',id:w};
-  if(w!=='admin')path=[...nodes_to(w)];
+  let w;try{w=await rpc('whoami',{p_pw:pw})}catch(e){alert('സെർവറുമായി ബന്ധപ്പെടാൻ കഴിഞ്ഞില്ല: '+e.message);return false}
+  if(!w){alert('പാസ്‌വേഡ് തെറ്റാണ്');return false}
+  PW=pw;auth=w==='admin'?{lvl:'admin'}:{lvl:'user',id:w};
+  if(w==='admin'){try{PWSET=new Set(await rpc('pw_set_ids'))}catch(e){}}else path=[...(nodes_to(w)||[])];
   return true}
 function nodes_to(id,n=root,p=[]){if(n.id===id)return p;for(const c of n.children){const r=nodes_to(id,c,[...p,c.id]);if(r)return r}return null}
 function nodes(){const out=[root];let n=root;for(const id of path){n=n.children.find(c=>c.id===id);if(!n)break;out.push(n)}return out}
@@ -181,7 +184,7 @@ function card(p,isSpouse){
   ${ce?`<div class="row-add"><button data-edit="${isSpouse?'sp':'me'}">വിവരങ്ങൾ ചേർക്കുക / മാറ്റുക</button></div>`:''}</article>`;
 }
 
-function render(){
+function render(keep){
   const ns=nodes();path=ns.slice(1).map(n=>n.id);
   const cur=ns[ns.length-1];ce=can(ns);
   $('#crumbs').innerHTML=ns.map((n,i)=>`${i?'<span>›</span>':''}<button class="${i===ns.length-1?'cur':''}" data-go="${i}">${esc(n.name)}</button>`).join('');
@@ -193,74 +196,89 @@ function render(){
   ${ce?`<button class="kid add" data-addkid><div class="av">+</div><span class="n">കുട്ടിയെ ചേർക്കുക</span></button>`:''}</div></section>`;
   $('#main').innerHTML=(edit?(!ce?'<p class="banner">ഈ പേജ് തിരുത്താൻ നിങ്ങളുടെ പാസ്‌വേഡിന് അനുമതിയില്ല. അനുവദിച്ച അംഗത്തിന്റെ പേജിലേക്ക് പോകുക.</p>':'<p class="banner">തിരുത്തൽ മോഡ്: ഈ പേജിൽ പങ്കാളിയെയും കുട്ടികളെയും ചേർക്കാം. ചേർത്ത കുട്ടിയെ തൊട്ട് അടുത്ത തലമുറയും ചേർക്കാം.</p>'):'')+h;
   $('#bEdit').classList.toggle('on',edit);$('#bEdit').textContent=edit?'പൂട്ടുക':'തിരുത്തുക';
-  $('#bExp').hidden=!edit;['#bImp','#bRst','#bPw'].forEach(s=>$(s).hidden=!(edit&&auth&&auth.lvl==='admin'));
-  scrollTo({top:0});
+  ['#bExp','#bImp','#bPw'].forEach(s=>$(s).hidden=!(edit&&auth&&auth.lvl==='admin'));
+  if(!keep)scrollTo({top:0});
 }
 
 /* ---- നാവിഗേഷൻ ---- */
 $('#crumbs').onclick=e=>{const b=e.target.closest('[data-go]');if(b)go(nodes().slice(1,+b.dataset.go+1).map(n=>n.id))};
 $('#main').onclick=e=>{
-  const cur=nodes().pop();
+  const ns=nodes(),cur=ns[ns.length-1],par=ns[ns.length-2]||null;
   const pen=e.target.closest('[data-pen]');
-  if(pen){e.stopPropagation();return openForm(cur.children.find(c=>c.id===pen.dataset.pen),()=>{cur.children=cur.children.filter(c=>c.id!==pen.dataset.pen)})}
+  if(pen){e.stopPropagation();const c=cur.children.find(x=>x.id===pen.dataset.pen);return openForm(c,{owner:c,parent:cur,node:true})}
   const k=e.target.closest('[data-kid]');if(k)return go([...path,k.dataset.kid]);
-  if(e.target.closest('[data-addkid]')){const c=P('പുതിയ അംഗം',genLabel(path.length).replace('ൾ','ൾ'));cur.children.push(c);save();return openForm(c,()=>{cur.children=cur.children.filter(x=>x!==c)},true)}
+  if(e.target.closest('[data-addkid]')){const c=P('പുതിയ അംഗം',genLabel(path.length));return openForm(c,{owner:c,parent:cur,node:true,isNew:true})}
   const ed=e.target.closest('[data-edit]');if(!ed)return;
   const t=ed.dataset.edit;
-  if(t==='me')openForm(cur,null);
-  if(t==='sp')openForm(cur.spouse,()=>{cur.spouse=null});
-  if(t==='addsp'){cur.spouse=P('പങ്കാളി','ഭാര്യ/ഭർത്താവ്');save();openForm(cur.spouse,()=>{cur.spouse=null},true)}
+  if(t==='me')openForm(cur,{owner:cur,parent:par,node:true,noDelete:true});
+  if(t==='sp')openForm(cur.spouse,{owner:cur,parent:par,remove:()=>{cur.spouse=null}});
+  if(t==='addsp'){const sp=P('പങ്കാളി','ഭാര്യ/ഭർത്താവ്');openForm(sp,{owner:cur,parent:par,isNew:true,attach:()=>{cur.spouse=sp}})}
 };
 
 /* ---- എഡിറ്റ് ഫോം ---- */
 const F=[['name','പേര്'],['rel','ബന്ധം'],['born','ജനനവർഷം'],['died','മരണവർഷം'],['phone','ഫോൺ നമ്പർ'],['email','ഇമെയിൽ'],['whatsapp','വാട്സാപ്പ് നമ്പർ'],['facebook','ഫേസ്ബുക്ക് (ലിങ്ക്/ഐഡി)'],['instagram','ഇൻസ്റ്റഗ്രാം (ലിങ്ക്/ഐഡി)']];
-function openForm(p,del,isNew){
+function openForm(p,ctx){
   if(!p)return;
-  const pwf=auth&&auth.lvl==='admin'&&all().includes(p);
+  const pwf=auth&&auth.lvl==='admin'&&ctx.node,has=PWSET.has(p.id);
+  const canDel=!ctx.isNew&&((ctx.node&&!ctx.noDelete)||ctx.remove);
   const f=k=>`<label>${F.find(x=>x[0]===k)[1]}<input name="${k}" value="${esc(p[k])}"></label>`;
   $('#frm').innerHTML=`<h3>വിവരങ്ങൾ</h3>
   <div class="pv">${avatar(p)}<div style="flex:1"><label style="margin:0">ഫോട്ടോ (ഫയൽ)<input type="file" id="ph" accept="image/*"></label></div></div>
-  <label>ഫോട്ടോ ലിങ്ക് (ഉദാ: photos/ammu.jpg)<input name="photo" value="${esc(p.photo&&p.photo.startsWith('data:')?'':p.photo)}"></label>
+  <label>ഫോട്ടോ ലിങ്ക് (ഓപ്ഷണൽ)<input name="photo" value="${esc(p.photo&&p.photo.startsWith('data:')?'':p.photo)}"></label>
   ${f('name')}${f('rel')}<div class="two">${f('born')}${f('died')}</div>
   <div class="two">${f('phone')}${f('whatsapp')}</div>${f('email')}
   <label>വിലാസം<textarea name="address" rows="2">${esc(p.address)}</textarea></label>
   <div class="two">${f('facebook')}${f('instagram')}</div>
   <label>കുറിപ്പ്<textarea name="notes" rows="2">${esc(p.notes)}</textarea></label>
-  ${pwf?`<label>ഈ അംഗത്തിനുള്ള എഡിറ്റ് പാസ്‌വേഡ് ${p.pw?'(സെറ്റ് ആണ്; മാറ്റാൻ പുതിയത് നൽകുക)':'(ഇവരുടെ കുടുംബം തിരുത്താൻ)'}<input name="newpw" autocomplete="off"></label>${p.pw?'<label><input type="checkbox" name="clearpw" style="width:auto"> പാസ്‌വേഡ് നീക്കം ചെയ്യുക</label>':''}`:''}
-  <div class="acts">${del?'<button type="button" class="danger" id="dDel">ഇല്ലാതാക്കുക</button>':''}<button type="button" id="dCan">റദ്ദാക്കുക</button><button type="button" class="primary" id="dOk">സേവ് ചെയ്യുക</button></div>`;
+  ${pwf?`<label>ഈ അംഗത്തിനുള്ള എഡിറ്റ് പാസ്‌വേഡ് ${has?'(സെറ്റ് ആണ്; മാറ്റാൻ പുതിയത് നൽകുക)':'(ഇവരുടെ കുടുംബം തിരുത്താൻ)'}<input name="newpw" autocomplete="off"></label>${has?'<label><input type="checkbox" name="clearpw" style="width:auto"> പാസ്‌വേഡ് നീക്കം ചെയ്യുക</label>':''}`:''}
+  <div class="acts">${canDel?'<button type="button" class="danger" id="dDel">ഇല്ലാതാക്കുക</button>':''}<button type="button" id="dCan">റദ്ദാക്കുക</button><button type="button" class="primary" id="dOk">സേവ് ചെയ്യുക</button></div>`;
   let photo=p.photo;
-  $('#ph').onchange=async e=>{const f=e.target.files[0];if(!f)return;photo=await shrink(f);$('.pv').firstElementChild.outerHTML=avatar({...p,photo})};
-  $('#dCan').onclick=()=>{if(isNew&&del)del();save();$('#dlg').close();render()};
+  $('#ph').onchange=async e=>{const fl=e.target.files[0];if(!fl)return;photo=await shrink(fl);$('.pv').firstElementChild.outerHTML=avatar({...p,photo})};
+  $('#dCan').onclick=()=>$('#dlg').close();
   $('#dOk').onclick=async()=>{
     const fd=new FormData($('#frm'));
-    for(const [k,v] of fd.entries()) if(!['photo','newpw','clearpw'].includes(k))p[k]=v.trim();
     const np=(fd.get('newpw')||'').trim();
-    if(np){if(np.length<4)return alert('പാസ്‌വേഡ് കുറഞ്ഞത് 4 അക്ഷരം വേണം');const o=await who(np);if(o&&o!==p.id)return alert('ഈ പാസ്‌വേഡ് മറ്റൊരാൾക്ക് നൽകിയിട്ടുണ്ട്. വേറെ തിരഞ്ഞെടുക്കുക.');p.pw=await hash(p.id+'|'+np)}
-    if(fd.get('clearpw'))p.pw='';
+    if(np&&np.length<4)return alert('പാസ്‌വേഡ് കുറഞ്ഞത് 4 അക്ഷരം വേണം');
+    for(const [k,v] of fd.entries()) if(!['photo','newpw','clearpw'].includes(k))p[k]=v.trim();
     const url=(fd.get('photo')||'').trim();
     p.photo=url||(photo&&photo.startsWith('data:')?photo:'');
-    save();$('#dlg').close();render();
+    $('#dOk').disabled=true;
+    try{
+      if(ctx.attach)ctx.attach();
+      await persist(ctx.owner,ctx.parent);
+      if(pwf&&np)await rpc('set_person_pw',{p_pw:PW,p_person:p.id,p_new:np});
+      else if(pwf&&fd.get('clearpw'))await rpc('set_person_pw',{p_pw:PW,p_person:p.id,p_new:''});
+      if(pwf)PWSET=new Set(await rpc('pw_set_ids'));
+      $('#dlg').close();await refresh();
+    }catch(e){alert(errMsg(e))}
+    $('#dOk').disabled=false;
   };
-  if(del&&!isNew)$('#dDel').onclick=()=>{if(confirm('"'+p.name+'" എന്നയാളെ (പിൻഗാമികളോടൊപ്പം) ഇല്ലാതാക്കട്ടെ?')){del();save();$('#dlg').close();render()}};
-  if(del&&isNew)$('#dDel').onclick=()=>{del();save();$('#dlg').close();render()};
+  if(canDel)$('#dDel').onclick=async()=>{
+    if(!confirm('"'+p.name+'"'+(ctx.node?' എന്നയാളെ (പിൻഗാമികളോടൊപ്പം) ഇല്ലാതാക്കട്ടെ?':' എന്ന പങ്കാളിയെ നീക്കട്ടെ?')))return;
+    try{if(ctx.node)await rpc('delete_person',{p_pw:PW,p_id:p.id});else{ctx.remove();await persist(ctx.owner,ctx.parent)}
+      $('#dlg').close();await refresh()}catch(e){alert(errMsg(e))}};
   $('#dlg').showModal();
 }
 function shrink(file){return new Promise(res=>{
   const im=new Image(),u=URL.createObjectURL(file);
-  im.onload=()=>{const s=Math.min(im.width,im.height),S=320,c=document.createElement('canvas');c.width=c.height=S;
-    c.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,S,S);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.8))};
+  im.onload=()=>{const s=Math.min(im.width,im.height),S=300,c=document.createElement('canvas');c.width=c.height=S;
+    c.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,S,S);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',.72))};
   im.src=u})}
 
 /* ---- ടൂൾബാർ ---- */
 $('#frm').onsubmit=e=>{e.preventDefault();const b=$('#dOk');if(b)b.click()};
-$('#bEdit').onclick=async()=>{if(edit){edit=false;auth=null;return render()}if(await login()){edit=true;go(path);render()}};
-$('#bPw').onclick=async()=>{const a=await askPw('പുതിയ അഡ്മിൻ പാസ്‌വേഡ്',true);if(!a)return;const o=await who(a);if(o&&o!=='admin')return alert('ഈ പാസ്‌വേഡ് ഒരു അംഗത്തിന് നൽകിയിട്ടുണ്ട്');root.auth.admin=await hash('admin|'+a);save();alert('അഡ്മിൻ പാസ്‌വേഡ് മാറ്റി')};
-$('#bExp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(root,null,1)],{type:'application/json'}));a.download='data.json';a.click()};
+$('#bEdit').onclick=async()=>{if(edit){edit=false;auth=null;PW='';return render(true)}if(await login()){edit=true;go(path);render()}};
+$('#bPw').onclick=async()=>{const a=await askPw('പുതിയ അഡ്മിൻ പാസ്‌വേഡ്',true);if(!a)return;try{await rpc('set_admin_pw',{p_pw:PW,p_new:a});PW=a;alert('അഡ്മിൻ പാസ്‌വേഡ് മാറ്റി')}catch(e){alert(errMsg(e))}};
+$('#bExp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(root,null,1)],{type:'application/json'}));a.download='family-backup.json';a.click()};
 $('#bImp').onclick=()=>$('#fImp').click();
-$('#fImp').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{root=JSON.parse(await f.text());save();go([])}catch(x){alert('ഫയൽ വായിക്കാൻ കഴിഞ്ഞില്ല. സാധുവായ data.json തിരഞ്ഞെടുക്കുക.')}e.target.value=''};
-$('#bRst').onclick=()=>{if(confirm('ഈ ബ്രൗസറിലെ എല്ലാ മാറ്റങ്ങളും കളഞ്ഞ് ആദ്യത്തെ ഡാറ്റയിലേക്ക് മടങ്ങട്ടെ?')){localStorage.removeItem(KEY);location.reload()}};
-
-load().then(()=>{path=location.hash.slice(1).split('/').filter(Boolean);render()});
+$('#fImp').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{const t=JSON.parse(await f.text());
+    if(!confirm('ഈ ഫയലിലെ എല്ലാ അംഗങ്ങളെയും ക്ലൗഡിലേക്ക് ചേർക്കട്ടെ? (ഒരേ ഐഡി ഉള്ളവ മാറ്റിയെഴുതും)'))return;
+    t.id='root';
+    const up=async(x,par,i)=>{const {children=[],pw,auth:_a,...data}=x;await rpc('save_person',{p_pw:PW,p_id:x.id,p_parent:par,p_data:data,p_sort:i});for(let j=0;j<children.length;j++)await up(children[j],x.id,j)};
+    await up(t,null,0);await refresh();alert('ഇമ്പോർട്ട് പൂർത്തിയായി')}
+  catch(x){alert('ഇമ്പോർട്ട് പരാജയപ്പെട്ടു: '+errMsg(x))}};
+load().then(ok=>{if(!ok)return;path=location.hash.slice(1).split('/').filter(Boolean);render();setInterval(poll,6000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()})});
 </script>
 </body>
 </html>
