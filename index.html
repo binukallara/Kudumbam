@@ -259,7 +259,7 @@ function openMem(p){
   ${p.hon?`<div class="tr">${esc(p.hon)}</div>`:''}<h2>${esc(p.name)}</h2>${yrs?`<div class="yr">${yrs}</div>`:''}${p.rel?`<div class="yr">${esc(p.rel)}</div>`:''}
   ${p.memo?`<p class="memo">${esc(p.memo)}</p>`:''}
   <p class="dua">അല്ലാഹു പൊറുത്തു കൊടുക്കുകയും ജന്നത്തുൽ ഫിർദൗസ് നൽകി അനുഗ്രഹിക്കുകയും ചെയ്യട്ടെ. ആമീൻ.</p>
-  <div class="yr" style="margin-bottom:16px">ഒരു ഫാതിഹ ഓതി ദുആ ചെയ്യുക</div>
+  <div class="yr" style="margin-bottom:16px"></div>
   <button type="button" id="memX">അടയ്ക്കുക</button>`;
   $('#memX').onclick=()=>d.close();
   d.onclick=e=>{if(e.target===d)d.close()};
