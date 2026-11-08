@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>കുടുംബ വൃക്ഷം</title>
-<link href="https://fonts.googleapis.com/css2?family=Manjari:wght@400;700&family=Noto+Serif+Malayalam:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Manjari:wght@400;700&family=Noto+Serif+Malayalam:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#081d18;--bg2:#17453a;--card:#0f2d26;--line:#2f6050;--gold:#dcb54a;--gold2:#f3dd93;--ivory:#f7f1de;--mute:#a4beb3;--danger:#e8806f}
 *{box-sizing:border-box}
@@ -70,6 +70,35 @@ input,textarea{width:100%;font:inherit;color:var(--ivory);background:var(--bg);b
   .banner{margin:0 auto 22px;max-width:640px;text-align:center;font-size:.9rem;color:var(--gold2);border:1px dashed var(--gold);border-radius:12px;padding:8px 14px}
 .err{color:var(--danger);font-size:.85rem;min-height:1.3em;margin:6px 0 0}
 #pwd input{margin-top:10px}
+.av.gone{filter:grayscale(1) contrast(.92);border-color:#d8d2bd}
+.memo-hit{display:block;margin:0 auto;padding:0!important;border:0!important;border-radius:0!important;background:none;cursor:pointer}
+.memo-hit .av{margin:0 auto 6px!important;transition:box-shadow .3s}
+.memo-hit:hover .av{box-shadow:0 0 0 6px var(--card),0 0 0 7px rgba(255,255,255,.55),0 0 34px rgba(255,236,190,.4)}
+.memo-hint{display:block;font-size:.78rem;color:var(--mute);margin-bottom:12px}
+.gone-tile .n::after{content:attr(data-hon);display:block;font-weight:400;font-size:.78rem;color:var(--gold)}
+select{width:100%;font:inherit;color:var(--ivory);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+#mem{width:min(440px,94vw);padding:34px 22px 26px;text-align:center;border:1px solid rgba(255,255,255,.2);background:radial-gradient(circle at 50% 26%,#26332f,#080d0b 72%)}
+#mem::backdrop{background:rgba(0,0,0,.9)}
+#mem[open]{animation:memIn 1s ease both}
+@keyframes memIn{from{opacity:0}to{opacity:1}}
+.motes{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.mote{position:absolute;bottom:-10px;width:5px;height:5px;border-radius:50%;background:rgba(255,226,150,.85);box-shadow:0 0 8px 2px rgba(255,200,100,.5);opacity:0;animation:rise linear infinite}
+@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translate(var(--dx),-460px);opacity:0}}
+.mem-ph{position:relative;width:170px;height:210px;margin:6px auto 0}
+#mem .av{width:170px;height:210px;font-size:4rem;border-radius:999px 999px 20px 20px;border-color:#ebe5d0;box-shadow:0 0 50px 8px rgba(255,240,205,.2);animation:glowIn 3s ease both}
+@keyframes glowIn{from{opacity:0;filter:grayscale(1) brightness(.2)}to{opacity:1;filter:grayscale(1) brightness(1)}}
+.ar{font-family:Amiri,'Noto Naskh Arabic',serif;font-size:1.5rem;color:var(--gold2);line-height:1.9;margin-bottom:6px;text-shadow:0 0 18px rgba(243,221,147,.35)}
+.sky{display:flex;justify-content:center;align-items:center;gap:16px;height:46px;margin-bottom:4px}
+.moon{width:34px;height:34px;border-radius:50%;box-shadow:-9px 5px 0 0 var(--gold2);transform:rotate(-15deg) translate(8px,-4px);filter:drop-shadow(0 0 8px rgba(243,221,147,.6))}
+.star{color:var(--gold2);font-size:1.1rem;animation:tw 2.4s ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.5;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
+#mem .dua{margin:14px auto 8px;max-width:340px;color:var(--gold2)}
+#mem .tr{color:var(--gold2);letter-spacing:.08em;font-family:'Noto Serif Malayalam',serif}
+#mem h2{font-size:1.7rem;margin-top:18px}
+#mem .tr{margin-top:18px}
+#mem .tr+h2{margin-top:0}
+#mem .yr{color:var(--mute);margin-top:2px}
+#mem p.memo{margin:14px auto 0;max-width:340px;font-style:italic}
 footer{margin-top:56px;color:var(--mute);font-size:.8rem;text-align:center}
 @media(max-width:720px){.couple.pair{grid-template-columns:1fr;max-width:440px}.orn{margin:-6px auto}}
 @media(max-width:520px){.two{grid-template-columns:1fr}.kid{width:calc(50% - 9px)}}
@@ -96,6 +125,8 @@ footer{margin-top:56px;color:var(--mute);font-size:.8rem;text-align:center}
 
 <dialog id="dlg"><form method="dialog" id="frm"></form></dialog>
 <dialog id="pwd"><form id="pf"><h3 id="pt"></h3><input type="password" id="pi" autocomplete="off" placeholder="പാസ്‌വേഡ്"><input type="password" id="pi2" autocomplete="off" placeholder="വീണ്ടും നൽകുക" hidden><p class="err" id="pe"></p><div class="acts"><button type="button" id="pc">റദ്ദാക്കുക</button><button class="primary">ശരി</button></div></form></dialog>
+
+<dialog id="mem" aria-label="സ്മരണ"></dialog>
 
 <script>
 const KEY='familyTreeData.v1';
@@ -163,9 +194,10 @@ function count(n){return n.children.reduce((a,c)=>a+1+count(c),0)}
 const go=p=>{path=p;location.hash=p.join('/')};
 addEventListener('hashchange',()=>{path=location.hash.slice(1).split('/').filter(Boolean);render()});
 
+function isGone(p){return !!(p&&(p.deceased||(p.died&&String(p.died).trim())))}
 function avatar(p,cls=''){
-  const ini=esc((p.name||'?').trim().charAt(0));
-  return p.photo?`<img class="av ${cls}" src="${esc(p.photo)}" alt="${esc(p.name)}">`:`<div class="av ${cls}" aria-hidden="true">${ini}</div>`;
+  const ini=esc((p.name||'?').trim().charAt(0)),g=isGone(p)?' gone':'';
+  return p.photo?`<img class="av ${cls}${g}" src="${esc(p.photo)}" alt="${esc(p.name)}">`:`<div class="av ${cls}${g}" aria-hidden="true">${ini}</div>`;
 }
 function link(type,v){
   if(!v)return'';
@@ -178,8 +210,8 @@ function link(type,v){
 }
 function card(p,isSpouse){
   const rows=[['ഫോൺ',link('ph',p.phone)],['ഇമെയിൽ',link('em',p.email)],['വിലാസം',esc(p.address)],['വാട്സാപ്പ്',link('wa',p.whatsapp)],['ഫേസ്ബുക്ക്',link('fb',p.facebook)],['ഇൻസ്റ്റഗ്രാം',link('ig',p.instagram)],['കുറിപ്പ്',esc(p.notes)]].filter(r=>r[1]);
-  const yrs=[p.born,p.died].filter(Boolean).join(' – ');
-  return`<article class="card">${avatar(p)}<h2>${esc(p.name)}</h2><div class="rel">${esc(p.rel)}</div>${yrs?`<div class="yrs">${esc(yrs)}</div>`:''}
+  const yrs=isGone(p)&&(p.born||p.died)?[p.born||'…',p.died||'…'].join(' – '):[p.born,p.died].filter(Boolean).join(' – ');
+  return`<article class="card">${isGone(p)?`<button class="memo-hit" data-mem="${isSpouse?'sp':'me'}" aria-label="സ്മരണ കാണുക">${avatar(p)}</button><span class="memo-hint">സ്മരണ കാണാൻ ചിത്രം തൊടുക</span>`:avatar(p)}<h2>${esc(p.name)}</h2><div class="rel">${esc(p.rel)}</div>${yrs?`<div class="yrs">${esc(yrs)}</div>`:''}
   ${rows.length?`<ul class="info">${rows.map(r=>`<li><b>${r[0]}</b><span>${r[1]}</span></li>`).join('')}</ul>`:`<div class="empty">വിവരങ്ങൾ ചേർത്തിട്ടില്ല</div>`}
   ${ce?`<div class="row-add"><button data-edit="${isSpouse?'sp':'me'}">വിവരങ്ങൾ ചേർക്കുക / മാറ്റുക</button></div>`:''}</article>`;
 }
@@ -192,7 +224,7 @@ function render(keep){
   let h=`<section class="couple${pair?' pair':''}">${card(cur,false)}${pair?'<div class="orn">❦</div>':''}${cur.spouse?card(cur.spouse,true):(ce?`<article class="card"><div class="empty">ജീവിതപങ്കാളി ഇല്ല</div><div class="row-add"><button data-edit="addsp">പങ്കാളിയെ ചേർക്കുക</button></div></article>`:'')}</section>`;
   h+=`<section class="sec"><div class="stem"></div><h3>${cur.children.length?`${genLabel(path.length)} (${cur.children.length})`:genLabel(path.length)}</h3>`;
   h+=cur.children.length?`<p class="hint">ഒരാളെ തൊട്ടാൽ അവരുടെ കുടുംബം കാണാം</p>`:`<p class="hint">${ce?'താഴെയുള്ള + അമർത്തി കുട്ടികളെ ചേർക്കാം':'ഇവിടെ കൂടുതൽ അംഗങ്ങളെ ചേർത്തിട്ടില്ല'}</p>`;
-  h+=`<div class="kids">${cur.children.map(c=>`<button class="kid" data-kid="${c.id}">${ce?`<span class="pen" data-pen="${c.id}">തിരുത്തുക</span>`:''}${avatar(c)}<span class="n">${esc(c.name)}</span><span class="s">${count(c)?count(c)+' പിൻഗാമികൾ':(c.spouse?'കുടുംബം':'')}</span></button>`).join('')}
+  h+=`<div class="kids">${cur.children.map(c=>`<button class="kid${isGone(c)?' gone-tile':''}" data-kid="${c.id}">${ce?`<span class="pen" data-pen="${c.id}">തിരുത്തുക</span>`:''}${avatar(c)}<span class="n"${isGone(c)?` data-hon="${esc(c.hon||'☪')}"`:''}>${esc(c.name)}</span><span class="s">${count(c)?count(c)+' പിൻഗാമികൾ':(c.spouse?'കുടുംബം':'')}</span></button>`).join('')}
   ${ce?`<button class="kid add" data-addkid><div class="av">+</div><span class="n">കുട്ടിയെ ചേർക്കുക</span></button>`:''}</div></section>`;
   $('#main').innerHTML=(edit?(!ce?'<p class="banner">ഈ പേജ് തിരുത്താൻ നിങ്ങളുടെ പാസ്‌വേഡിന് അനുമതിയില്ല. അനുവദിച്ച അംഗത്തിന്റെ പേജിലേക്ക് പോകുക.</p>':'<p class="banner">തിരുത്തൽ മോഡ്: ഈ പേജിൽ പങ്കാളിയെയും കുട്ടികളെയും ചേർക്കാം. ചേർത്ത കുട്ടിയെ തൊട്ട് അടുത്ത തലമുറയും ചേർക്കാം.</p>'):'')+h;
   $('#bEdit').classList.toggle('on',edit);$('#bEdit').textContent=edit?'പൂട്ടുക':'തിരുത്തുക';
@@ -204,6 +236,7 @@ function render(keep){
 $('#crumbs').onclick=e=>{const b=e.target.closest('[data-go]');if(b)go(nodes().slice(1,+b.dataset.go+1).map(n=>n.id))};
 $('#main').onclick=e=>{
   const ns=nodes(),cur=ns[ns.length-1],par=ns[ns.length-2]||null;
+  const mm=e.target.closest('[data-mem]');if(mm)return openMem(mm.dataset.mem==='sp'?cur.spouse:cur);
   const pen=e.target.closest('[data-pen]');
   if(pen){e.stopPropagation();const c=cur.children.find(x=>x.id===pen.dataset.pen);return openForm(c,{owner:c,parent:cur,node:true})}
   const k=e.target.closest('[data-kid]');if(k)return go([...path,k.dataset.kid]);
@@ -214,6 +247,24 @@ $('#main').onclick=e=>{
   if(t==='sp')openForm(cur.spouse,{owner:cur,parent:par,remove:()=>{cur.spouse=null}});
   if(t==='addsp'){const sp=P('പങ്കാളി','ഭാര്യ/ഭർത്താവ്');openForm(sp,{owner:cur,parent:par,isNew:true,attach:()=>{cur.spouse=sp}})}
 };
+
+function openMem(p){
+  if(!p)return;const d=$('#mem');
+  const yrs=(p.born||p.died)?`${esc(p.born||'')} – ${esc(p.died||'')}`:'';
+  const motes=Array.from({length:14},()=>`<span class="mote" style="left:${(5+Math.random()*90)|0}%;animation-duration:${(6+Math.random()*6).toFixed(1)}s;animation-delay:${(Math.random()*6).toFixed(1)}s;--dx:${(Math.random()*60-30)|0}px"></span>`).join('');
+  d.innerHTML=`<div class="motes">${motes}</div>
+  <div class="ar" lang="ar" dir="rtl">إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ</div>
+  <div class="sky" aria-hidden="true"><span class="moon"></span><span class="star">✦</span></div>
+  <div class="mem-ph">${avatar(p)}</div>
+  ${p.hon?`<div class="tr">${esc(p.hon)}</div>`:''}<h2>${esc(p.name)}</h2>${yrs?`<div class="yr">${yrs}</div>`:''}${p.rel?`<div class="yr">${esc(p.rel)}</div>`:''}
+  ${p.memo?`<p class="memo">${esc(p.memo)}</p>`:''}
+  <p class="dua">അല്ലാഹു പൊറുത്തു കൊടുക്കുകയും ജന്നത്തുൽ ഫിർദൗസ് നൽകി അനുഗ്രഹിക്കുകയും ചെയ്യട്ടെ. ആമീൻ.</p>
+  <div class="yr" style="margin-bottom:16px">ഒരു ഫാതിഹ ഓതി ദുആ ചെയ്യുക</div>
+  <button type="button" id="memX">അടയ്ക്കുക</button>`;
+  $('#memX').onclick=()=>d.close();
+  d.onclick=e=>{if(e.target===d)d.close()};
+  d.showModal();$('#memX').focus();
+}
 
 /* ---- എഡിറ്റ് ഫോം ---- */
 const F=[['name','പേര്'],['rel','ബന്ധം'],['born','ജനനവർഷം'],['died','മരണവർഷം'],['phone','ഫോൺ നമ്പർ'],['email','ഇമെയിൽ'],['whatsapp','വാട്സാപ്പ് നമ്പർ'],['facebook','ഫേസ്ബുക്ക് (ലിങ്ക്/ഐഡി)'],['instagram','ഇൻസ്റ്റഗ്രാം (ലിങ്ക്/ഐഡി)']];
@@ -226,6 +277,9 @@ function openForm(p,ctx){
   <div class="pv">${avatar(p)}<div style="flex:1"><label style="margin:0">ഫോട്ടോ (ഫയൽ)<input type="file" id="ph" accept="image/*"></label></div></div>
   <label>ഫോട്ടോ ലിങ്ക് (ഓപ്ഷണൽ)<input name="photo" value="${esc(p.photo&&p.photo.startsWith('data:')?'':p.photo)}"></label>
   ${f('name')}${f('rel')}<div class="two">${f('born')}${f('died')}</div>
+  <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="deceased" style="width:auto" ${p.deceased?'checked':''}> മരണപ്പെട്ടു (സ്മരണ പ്രഭാവം കാണിക്കുക)</label>
+  <label>ബഹുമാന പദം (ഓപ്ഷണൽ)<select name="hon"><option value="">—</option><option ${p.hon==='മർഹൂം'?'selected':''}>മർഹൂം</option><option ${p.hon==='മർഹൂമ'?'selected':''}>മർഹൂമ</option></select></label>
+  <label>സ്മരണക്കുറിപ്പ് (ഓപ്ഷണൽ)<textarea name="memo" rows="2">${esc(p.memo)}</textarea></label>
   <div class="two">${f('phone')}${f('whatsapp')}</div>${f('email')}
   <label>വിലാസം<textarea name="address" rows="2">${esc(p.address)}</textarea></label>
   <div class="two">${f('facebook')}${f('instagram')}</div>
@@ -239,7 +293,8 @@ function openForm(p,ctx){
     const fd=new FormData($('#frm'));
     const np=(fd.get('newpw')||'').trim();
     if(np&&np.length<4)return alert('പാസ്‌വേഡ് കുറഞ്ഞത് 4 അക്ഷരം വേണം');
-    for(const [k,v] of fd.entries()) if(!['photo','newpw','clearpw'].includes(k))p[k]=v.trim();
+    for(const [k,v] of fd.entries()) if(!['photo','newpw','clearpw','deceased'].includes(k))p[k]=v.trim();
+    p.deceased=fd.has('deceased');
     const url=(fd.get('photo')||'').trim();
     p.photo=url||(photo&&photo.startsWith('data:')?photo:'');
     $('#dOk').disabled=true;
