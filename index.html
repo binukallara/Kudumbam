@@ -82,8 +82,8 @@ select{width:100%;font:inherit;color:var(--ivory);background:var(--bg);border:1p
 #mem[open]{animation:memIn 1s ease both}
 @keyframes memIn{from{opacity:0}to{opacity:1}}
 .motes{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-.mote{position:absolute;bottom:-10px;width:5px;height:5px;border-radius:50%;background:rgba(255,226,150,.85);box-shadow:0 0 8px 2px rgba(255,200,100,.5);opacity:0;animation:rise linear infinite}
-@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translate(var(--dx),-460px);opacity:0}}
+.mote{position:absolute;bottom:-10px;width:5px;height:5px;border-radius:50%;background:rgba(255,226,150,.85);box-shadow:0 0 8px 2px rgba(255,200,100,.5);opacity:0;animation:moteRise linear infinite}
+@keyframes moteRise{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translate(var(--dx),-460px);opacity:0}}
 .mem-ph{position:relative;width:170px;height:210px;margin:6px auto 0}
 #mem .av{width:170px;height:210px;font-size:4rem;border-radius:999px 999px 20px 20px;border-color:#ebe5d0;box-shadow:0 0 50px 8px rgba(255,240,205,.2);animation:glowIn 3s ease both}
 @keyframes glowIn{from{opacity:0;filter:grayscale(1) brightness(.2)}to{opacity:1;filter:grayscale(1) brightness(1)}}
